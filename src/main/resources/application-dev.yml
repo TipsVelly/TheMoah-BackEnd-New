@@ -1,0 +1,6 @@
+server:
+  port: 8024
+spring:
+  output:
+    ansi:
+      enabled: always
