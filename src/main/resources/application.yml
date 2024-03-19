@@ -1,1 +1,76 @@
-spring.application.name=theMoah
+# Server port
+server:
+  servlet:
+    context-path: /
+    encoding:
+      enabled: true
+      charset: UTF-8
+      force: true
+    session:
+      timeout: 18000                              # 30분, Default 기본단위 : 초
+  tomcat:
+    uri-encoding: UTF-8                         # Spring Default : UTF-8
+  ##############################################################
+  # Spring Message 처리
+  messages:
+    basename: messages/messages, messages/exception		# 각각 ResourceBundle 규칙을 따르는 쉼표로 구분된 기본 이름 목록
+    always-use-message-format: false	# 인수가 없는 메시지도 구문 분석하여 항상 MessageFormat 규칙을 적용할지 여부
+    encoding: UTF-8
+    fallback-to-system-locale: true		# locale에 해당하는 file이 없을 경우 system locale을 사용 ( default : true )
+    use-code-as-default-message: true	# 해당 코드를 찾을 수 없을 경우 Code 를 출력한다. ( default : false )
+    cache-duration: 3                 # default는 forever
+    #cache-seconds: -1					      # 로드된 자원 번들 파일 캐시 만료(초). -1로 설정하면 번들은 영원히 캐시됩니다.
+
+  ##############################################################
+  # Swagger pathmatch
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
+
+##############################################################
+# Spring Message 처리
+spring:
+  profiles:
+    active: dev
+  jpa:
+    open-in-view: false
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: update
+    properties:           # Additional native properties to set on the JPA provider.
+      hibernate:
+        default_batch_fetch_size: 100
+        format_sql: true                # 로그, 콘솔의 SQL을 좀 더 이쁘게 출력합니다.
+        highlight_sql: true             # SQL 출력을 ANSI escape codes를 사용하여 색을 부여합니다.
+        use_sql_comments: true          # 보다 쉬운 디버깅을 위해 SQL 내부에 /* */의 주석을 추가합니다.
+  ##############################################################
+  # Spring Datasource 처리
+  datasource:
+    url: jdbc:postgresql://211.232.75.41:5433/the_moah_db
+    driver-class-name: org.postgresql.Driver # PostgreSQL
+    username: logis_user
+    password: logis_pwd
+  devtools:
+    restart:
+      enabled: true
+  servlet:
+    multipart:
+      max-file-size: 10MB # 업로드 파일 한 개당 최대 크기
+      max-request-size: 50MB # 한 번의 요청에 포함될 수 있는 전체 파일 크기의 최대값
+# Logging
+logging:
+  level:  # 각 package 별로 로깅 레벨을 지정할 수 있다.
+    root : info
+    octopus: debug
+    org.springframework: WARN
+    org.hibernate.SQL: DEBUG
+jwt:
+  header: Authorization
+  scheme: Bearer
+  #HS512 알고리즘을 사용할 것이기 때문에 512bit, 즉 64byte 이상의 secret key를 사용해야 한다.
+  secret: a2FyaW10b2thcmltdG9rYXJpbXRva2FyaW10b2thcmltdG9rYXJpbXRva2FyaW10b2thcmltdG9rYXJpbXRva2FyaW10b2thcmltdG9rYXJpbXRva2FyaW10b2thcmltdG9rYXJpbXRva2FyaW10b2thcmltdG9rYXJpbXRva2FyaW10b2thcmltdG9rYXJpbQ==
+  token-validity-in-seconds: 86400 # ttl (초)
+defaultMsg:
+  status:
+    success: 처리에 성공하였습니다.
+    failure: 처리에 실패하였습니다.
