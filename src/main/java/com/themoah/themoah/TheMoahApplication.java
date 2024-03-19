@@ -2,8 +2,10 @@ package com.themoah.themoah;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
 @SpringBootApplication
+@EnableJpaAuditing
 public class TheMoahApplication {
 
     public static void main(String[] args) {
