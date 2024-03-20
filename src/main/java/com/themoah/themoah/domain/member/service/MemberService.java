@@ -60,23 +60,39 @@ public class MemberService {
         return NiceIdVerification.getNiceIdEncData(clientId, clientSecret, productId, returnURL, niceIdKeyRepository);
     }
 
-    public void executeDecryptedEncData(String tokenVersionId, String encData) {
+    public String executeDecryptedEncData(String tokenVersionId, String encData) {
         // tokenVersionId로 해당하는 Key값 찾는다.
         Optional<NiceIdKey> niceIdKey = niceIdKeyRepository.findById(tokenVersionId);
 
-        // key를 이용해 복호화 시도 후, 복호화된 데이터를 java vo에 넣는다.
-        NiceIdResultData ValidatedNiceIdResultData = NiceIdVerification.getDecryptedEncData(niceIdKey.get().getKey(), encData);
+        // key를 이용해 복호화 시도 후, 복호화된 데이터를 java vo로 변환한다.
+        NiceIdResultData decryptedEncData = NiceIdVerification.getDecryptedEncData(niceIdKey.get().getKey(), encData);
 
+        // 해당 정보를 jwt 토큰으로 만들어 반환한다.
+        return NiceIdVerification.generateToken(decryptedEncData);
     }
 
 
     @Transactional
-    public boolean addMember(RequestMemberDto pMember) {
+    public boolean signupMember(RequestMemberDto pMember) {
         boolean rst = true;
+        String authToken = pMember.getAuthToken();
+        NiceIdResultData niceIdResultData = NiceIdVerification.decodeToken(authToken);
+
+        if(niceIdResultData == null) {
+            throw new RuntimeException("본인인증 정보가 잘못되었습니다.");
+        }
+
+        if(memberRepository.existsById(pMember.getMemberId())) {
+            throw new RuntimeException("이미 존재하는 아이디입니다.");
+        }
+
         memberRepository.save(Member.builder()
-                .memberId(pMember.getMemberId())
-                .pwd(passwordEncoder.encode(pMember.getPassword()))
-                .memberName(pMember.getMemberName())
+                    .memberId(pMember.getMemberId())
+                    .pwd(passwordEncoder.encode(pMember.getPassword()))
+                    .memberName(niceIdResultData.getName())
+                    .phoneNumber(niceIdResultData.getMobileNo())
+                    .authType(niceIdResultData.getAuthType())
+                    .address(pMember.getAddress() + "//" + pMember.getAddressDetail())
                 .build());
         return rst;
     }
