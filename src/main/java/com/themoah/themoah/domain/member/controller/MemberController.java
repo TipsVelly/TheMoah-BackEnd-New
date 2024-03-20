@@ -1,6 +1,5 @@
 package com.themoah.themoah.domain.member.controller;
 
-import com.themoah.themoah.common.config.annotations.RestJSONController;
 import com.themoah.themoah.common.dto.TokenDto;
 import com.themoah.themoah.common.security.TokenProvider;
 import com.themoah.themoah.common.util.niceid.NiceIdVerification;
@@ -11,6 +10,8 @@ import com.themoah.themoah.domain.member.dto.RequestTokenDto;
 import com.themoah.themoah.domain.member.dto.ResponseMemberDto;
 import com.themoah.themoah.domain.member.service.MemberService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.MediaType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
@@ -22,8 +23,9 @@ import org.springframework.web.servlet.view.RedirectView;
 import java.util.HashMap;
 import java.util.Map;
 
-@RestJSONController
-@RequestMapping("/member")
+@RestController
+@RequestMapping(value="/member",produces = {MediaType.APPLICATION_JSON_VALUE})
+@Slf4j
 @RequiredArgsConstructor
 public class MemberController {
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
@@ -98,7 +100,7 @@ public class MemberController {
 
     @PostMapping("/signup")
     public Map<String, Boolean> signup(@RequestBody RequestMemberDto member) {
-        boolean rst = memberService.addMember(member);
+        boolean rst = memberService.signupMember(member);
         return Map.of("ifSignup", rst);
     }
 
@@ -113,10 +115,13 @@ public class MemberController {
 
     @RequestMapping(value = "/acceptNiceIdResult", method = {RequestMethod.POST, RequestMethod.GET})
     public RedirectView acceptNiceIdResult(@RequestParam("token_version_id") String tokenVersionId, @RequestParam("enc_data") String encData, @RequestParam("integrity_value") String integrityValue) {
-
-
-        boolean status = false;
-        return new RedirectView("http://localhost:3031/view/outer/niceIdResult.html");
+        try {
+            String token = memberService.executeDecryptedEncData(tokenVersionId, encData);
+            return new RedirectView("http://localhost:3031/view/outer/niceIdResult.html?status=Y&token=" + token);
+        } catch (Exception e) {
+            log.error("error", e);
+            return new RedirectView("http://localhost:3031/view/outer/niceIdResult.html?status=N");
+        }
     }
 
     /**

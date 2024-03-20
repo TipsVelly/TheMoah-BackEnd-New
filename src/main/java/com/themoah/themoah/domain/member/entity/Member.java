@@ -29,8 +29,10 @@ public class Member extends BaseTimeWithoutId {
     private String  pwd;
     private String  memberName;
     private String  phoneNumber;
-    private String  address; 
+    private String  address;
     private Boolean master;
+    private String  authType;
+
 
     @ManyToOne(fetch = FetchType.LAZY, optional = true)
     @JoinColumn(name = "team_id")
