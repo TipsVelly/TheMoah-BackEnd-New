@@ -11,20 +11,17 @@ import lombok.Setter;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class RequestMemberDto {
     private String memberId;
-    private String memberName;
-    private String nickname;
     private String password;
     private String address;
-    private String phoneNumber;
+    private String addressDetail;
+    private String authToken;
    
     @Builder
-    public RequestMemberDto(String userId, String username, String nickname, String password, String address,
-            String phoneNumber) {
+    public RequestMemberDto(String userId, String password, String address, String authToken, String addressDetail) {
         this.memberId = userId;
-        this.memberName = username;
-        this.nickname = nickname;
         this.password = password;
         this.address = address;
-        this.phoneNumber = phoneNumber;
+        this.authToken = authToken;
+        this.addressDetail = addressDetail;
     }
 }
