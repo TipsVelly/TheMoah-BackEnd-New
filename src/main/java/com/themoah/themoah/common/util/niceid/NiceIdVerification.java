@@ -14,12 +14,19 @@ import com.themoah.themoah.common.util.niceid.dto.response.NiceIdRevokeTokenResp
 import com.themoah.themoah.common.util.niceid.exception.NiceIdValidationException;
 import com.themoah.themoah.domain.verification.niceId.entity.NiceIdKey;
 import com.themoah.themoah.domain.verification.niceId.repository.NiceIdKeyRepository;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.io.Decoders;
+import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.json.simple.JSONObject;
 import org.springframework.http.*;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -28,10 +35,7 @@ import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
-import java.security.InvalidAlgorithmParameterException;
-import java.security.InvalidKeyException;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
+import java.security.*;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -53,8 +57,10 @@ public class NiceIdVerification {
     public final static String DATE_FORMAT_yyyyMMddHHmmss = "yyyyMMddHHmmss";
     public final static String DATE_FORMAT_yyyyMMdd = "yyyyMMdd";
     public final static String AUTHORIZATION_PREFIX_BEARER = "bearer ";
+    private static final long ACCESS_TOKEN_EXPIRE_TIME = 1000 * 60 * 30;            // 30분
+    private static final String SECRET_KEY = "a2FyaW10b2thcmltdG9rYXJpbXRva2FyaW10b2thcmltdG9rYXJpbXRva2FyaW10b2thcmltdG9rYXJpbXRva2FyaW10b2thcmltdG9rYXJpbXRva2FyaW10b2thcmltdG9rYXJpbXRva2FyaW10b2thcmltdG9rYXJpbXRva2FyaW10b2thcmltdG9rYXJpbQ==";
 
-
+    private static final String KEY_NAME = "authentication";
     /**
      * 0. 실행 메서드
      */
@@ -454,12 +460,13 @@ public class NiceIdVerification {
      */
     public static NiceIdResultData getDecryptedEncData(String cryptoToken, String encData) {
         NiceIdResultData niceIdResultData = decryptResponseData(cryptoToken, encData);
-        boolean rst = validateNiceIdResultData(niceIdResultData);
-        if(rst) {
-            return niceIdResultData;
-        } else {
-            return null;
+        NiceIdStatusCode niceIdStatusCode = validateNiceIdResultData(niceIdResultData);
+
+        if(niceIdStatusCode != NiceIdStatusCode.AUTHENTICATION_SUCCESS) {
+            throw new NiceIdValidationException(niceIdStatusCode);
         }
+
+        return niceIdResultData;
     }
 
     private static NiceIdResultData decryptResponseData(String cryptoToken, String encData) {
@@ -517,18 +524,56 @@ public class NiceIdVerification {
      * @param niceIdResultData
      * @return
      */
-    private static boolean validateNiceIdResultData(NiceIdResultData niceIdResultData) {
+    private static NiceIdStatusCode validateNiceIdResultData(NiceIdResultData niceIdResultData) {
         String resultCode = niceIdResultData.getResultCode();
 
-        NiceIdStatusCode rst = Arrays.stream(NiceIdStatusCode.values())
+        return Arrays.stream(NiceIdStatusCode.values())
                 .filter(niceIdStatusCode -> niceIdStatusCode.getCode().equals(niceIdResultData.getResultCode()))
                 .findAny().orElse(NiceIdStatusCode.OTHER_ERRORS);
-        
-        if(rst == NiceIdStatusCode.AUTHENTICATION_SUCCESS) {
-            return true;
+    }
+
+    public static String generateToken(NiceIdResultData niceIdResultData) {
+        byte[] keyBytes = Decoders.BASE64.decode(SECRET_KEY);
+        Key key = Keys.hmacShaKeyFor(keyBytes);
+
+        long now = (new Date()).getTime();
+
+        // jwt token 생성
+        Date tokenExpiresIn = new Date(now + ACCESS_TOKEN_EXPIRE_TIME);
+
+
+        String token = Jwts.builder()
+                .setSubject(niceIdResultData.getResponseNo())
+                .claim(KEY_NAME, niceIdResultData)
+                .setExpiration(tokenExpiresIn)
+                .signWith(key, SignatureAlgorithm.HS256)
+                .compact();
+
+        return token;
+    }
+
+    public static NiceIdResultData decodeToken(String token) {
+        Claims claims = parseClaims(token); //복호화
+
+        if(!StringUtils.hasText((String)claims.getSubject())) {
+            throw new RuntimeException("본인인증 정보가 없는 토큰입니다.");
         }
 
-        throw new NiceIdValidationException(rst);
+        ObjectMapper objectMapper = new ObjectMapper();
+        NiceIdResultData niceIdResultData = objectMapper.convertValue(claims.get(KEY_NAME), NiceIdResultData.class);
+
+        return niceIdResultData;
+    }
+
+    private static Claims parseClaims(String token) {
+        byte[] keyBytes = Decoders.BASE64.decode(SECRET_KEY);
+        Key key = Keys.hmacShaKeyFor(keyBytes);
+
+        try {
+            return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody();
+        } catch (ExpiredJwtException e) {
+            return e.getClaims();
+        }
     }
 }
 
