@@ -26,8 +26,8 @@ public class TeamController {
     public ResponseEntity<?> get(@PathVariable String memberId) {
         TeamSettingDto teamSettingDto = teamService.findTeamByMemberId(memberId);
         String s3logoUrl = fileStorageService.findFileUrlByGroupAndGroupId("TEAM", String.valueOf(teamSettingDto.getTeamId()));
-
-        teamSettingDto.setLogoUrl(s3logoUrl);
+        if(s3logoUrl != null)
+            teamSettingDto.setLogoUrl(s3logoUrl);
         if (teamSettingDto != null) {
             return ResponseEntity.ok(teamSettingDto);
         } else {
@@ -58,10 +58,14 @@ public class TeamController {
             String fileGroup = "TEAM";
             // 멤버 ID로 팀 ID 조회
             String groupId = teamService.findTeamIdByMemberId(memberId);
+
             if (groupId == null) {
                 // 팀 정보가 없는 경우 에러 처리
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Team not found for memberId: " + memberId);
             }
+
+
+
             // 파일 저장 로직 호출
             String savedFile = fileStorageService.fileUpload(file, fileGroup, groupId);
 
@@ -72,5 +76,18 @@ public class TeamController {
         }
 
     }
+
+    @DeleteMapping("/deleteLogo/{memberId}")
+    public ResponseEntity<?> deleteLogo(@PathVariable String memberId) {
+        try {
+            TeamSettingDto teamSettingDto = teamService.findTeamByMemberId(memberId);
+            String fileGroup = "TEAM";
+            teamService.deleteLogo(fileGroup, teamSettingDto.getTeamId().toString());
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("로고 삭제 실패");
+        }
+    }
+
 
 }

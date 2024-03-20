@@ -13,9 +13,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.Optional;
-import java.util.UUID;
 import java.net.URL;
+import java.util.List;
+import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 public class FileStorageService {
@@ -29,9 +29,19 @@ public class FileStorageService {
         if (file.isEmpty()) {
             throw new IllegalStateException("Cannot upload empty file");
         }
+        // 기존 파일이 있는지 확인
+        List<FileStorage> existingFiles = fileStorageRepository.findByFileGroupAndGroupId(fileGroup, groupId);
+        if (!existingFiles.isEmpty()) {
+            // AWS S3 버킷에서 기존 파일 삭제
+            for (FileStorage existingFile : existingFiles) {
+                String existingFileName = existingFile.getFileName();
+                amazonS3.deleteObject(s3Config.getBucketName(), existingFileName);
+                // 데이터베이스에서 기존 파일 정보 삭제
+                fileStorageRepository.delete(existingFile);
+            }
+        }
 
         String fileName = generateFileName(file);
-
         String bucketName = s3Config.getBucketName();
 
         try {
@@ -75,16 +85,32 @@ public class FileStorageService {
     }
 
     public String findFileUrlByGroupAndGroupId(String fileGroup, String groupId) {
-        Optional<FileStorage> fileStorageOptional = fileStorageRepository.findByFileGroupAndGroupId(fileGroup, groupId);
+        List<FileStorage> fileStorages = fileStorageRepository.findByFileGroupAndGroupId(fileGroup, groupId);
 
-        if (fileStorageOptional.isPresent()) {
-            FileStorage fileStorage = fileStorageOptional.get();
+        if (!fileStorages.isEmpty()) {
+            // 결과 리스트에서 첫 번째 파일을 사용
+            FileStorage fileStorage = fileStorages.get(0);
             S3Util s3Util = new S3Util(amazonS3, s3Config.getBucketName());
-            URL url = s3Util.generatePreSignedURL(fileStorage.getFileName(),60);
+            URL url = s3Util.generatePreSignedURL(fileStorage.getFileName(), 60);
             return url.toString();
         } else {
-            throw new RuntimeException("File not found for the given group and group ID");
+            return null;
         }
     }
+
+    public void deleteFilesByGroupAndGroupId(String fileGroup, String groupId) {
+        List<FileStorage> existingFiles = fileStorageRepository.findByFileGroupAndGroupId(fileGroup, groupId);
+        if (!existingFiles.isEmpty()) {
+            for (FileStorage existingFile : existingFiles) {
+                // S3에서 파일 삭제
+                amazonS3.deleteObject(s3Config.getBucketName(), existingFile.getFileName());
+                // 데이터베이스에서 파일 정보 삭제
+                fileStorageRepository.delete(existingFile);
+            }
+        } else {
+            throw new RuntimeException("No files found to delete for the given group and group ID.");
+        }
+    }
+
 
 }

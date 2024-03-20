@@ -1,5 +1,6 @@
 package com.themoah.themoah.domain.team.service;
 
+import com.themoah.themoah.domain.file.service.FileStorageService;
 import com.themoah.themoah.domain.member.entity.Member;
 import com.themoah.themoah.domain.member.repository.MemberRepository;
 import com.themoah.themoah.domain.team.dto.TeamSettingDto;
@@ -17,6 +18,7 @@ public class TeamService {
 
     private final MemberRepository memberRepository;
     private final TeamRepository teamRepository;
+    private final FileStorageService fileStorageService;
 
     @Transactional
     public void saveTeamSettings(TeamSettingDto teamSettingDto, String memberId) {
@@ -66,6 +68,7 @@ public class TeamService {
         Optional<Team> team = memberRepository.findById(memberId).map(Member::getTeam);
         if (team.isPresent()) {
             return TeamSettingDto.builder()
+                    .memberId(memberId)
                     .teamId(team.get().getId())
                     .teamNm(team.get().getTeamNm())
                     .teamInfo(team.get().getTeamInfo())
@@ -85,4 +88,10 @@ public class TeamService {
                 .map(String::valueOf) // Long 타입의 ID를 String으로 변환
                 .orElse(null);
     }
+
+    public void deleteLogo(String Filegroup,String memberId) {
+        fileStorageService.deleteFilesByGroupAndGroupId(Filegroup,memberId);
+    }
+
+
 }
