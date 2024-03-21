@@ -1,32 +1,31 @@
 package com.themoah.themoah.domain.member.controller;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-
-import com.themoah.themoah.common.config.annotations.Message;
-import com.themoah.themoah.common.config.annotations.RestJSONController;
 import com.themoah.themoah.common.dto.TokenDto;
 import com.themoah.themoah.common.security.TokenProvider;
+import com.themoah.themoah.common.util.niceid.NiceIdVerification;
+import com.themoah.themoah.common.util.niceid.dto.NiceIdEncData;
 import com.themoah.themoah.domain.member.dto.LoginDto;
 import com.themoah.themoah.domain.member.dto.RequestMemberDto;
 import com.themoah.themoah.domain.member.dto.RequestTokenDto;
 import com.themoah.themoah.domain.member.dto.ResponseMemberDto;
 import com.themoah.themoah.domain.member.service.MemberService;
-
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.MediaType;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.view.RedirectView;
 
-@RestJSONController
-@RequestMapping("/member")
+import java.util.HashMap;
+import java.util.Map;
+
+@RestController
+@RequestMapping(value="/member",produces = {MediaType.APPLICATION_JSON_VALUE})
+@Slf4j
 @RequiredArgsConstructor
 public class MemberController {
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
@@ -95,23 +94,42 @@ public class MemberController {
     
     /**
      * 멤버 회원가입(추가) 컨트롤러
-     * @param RequestMemberDto
+     * @param member
      * @return
      */
 
     @PostMapping("/signup")
     public Map<String, Boolean> signup(@RequestBody RequestMemberDto member) {
-        boolean rst = memberService.addMember(member);
+        boolean rst = memberService.signupMember(member);
         return Map.of("ifSignup", rst);
     }
 
+    @GetMapping("/getNiceIdEncData")
+    public NiceIdEncData getNiceIdEncData(@RequestParam(name = "returnURL", required = false) String returnURL) {
+        String clientId = NiceIdVerification.CLIENT_ID;
+        String clientSecret = NiceIdVerification.CLIENT_SECRET;
+        String productId = NiceIdVerification.PRODUCT_ID;
+
+        return memberService.getNiceIdEncData(clientId, clientSecret, productId, returnURL);
+    }
+
+    @RequestMapping(value = "/acceptNiceIdResult", method = {RequestMethod.POST, RequestMethod.GET})
+    public RedirectView acceptNiceIdResult(@RequestParam("token_version_id") String tokenVersionId, @RequestParam("enc_data") String encData, @RequestParam("integrity_value") String integrityValue) {
+        try {
+            String token = memberService.executeDecryptedEncData(tokenVersionId, encData);
+            return new RedirectView("http://localhost:3031/view/outer/niceIdResult.html?status=Y&token=" + token);
+        } catch (Exception e) {
+            log.error("error", e);
+            return new RedirectView("http://localhost:3031/view/outer/niceIdResult.html?status=N");
+        }
+    }
 
     /**
      * 멤버 컨트롤러에서 생기는 권한/인가 에러에 대한 예외 핸들러
      * @param e
      * @return
      */
-    @Message("아이디 또는 비밀번호가 일치하지 않습니다.")
+
     @ExceptionHandler({AuthenticationException.class})
     public Map<String, Object> LoginExcetionHandler(AuthenticationException e) {
         return Map.of("error", e.getMessage());

@@ -1,5 +1,6 @@
 package com.themoah.themoah.domain.team.service;
 
+import com.themoah.themoah.domain.file.service.FileStorageService;
 import com.themoah.themoah.domain.member.entity.Member;
 import com.themoah.themoah.domain.member.repository.MemberRepository;
 import com.themoah.themoah.domain.team.dto.TeamSettingDto;
@@ -7,10 +8,8 @@ import com.themoah.themoah.domain.team.entity.Team;
 import com.themoah.themoah.domain.team.repository.TeamRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.core.annotation.MergedAnnotation;
 import org.springframework.stereotype.Service;
 
-import java.lang.annotation.Annotation;
 import java.util.Optional;
 
 @Service
@@ -19,6 +18,7 @@ public class TeamService {
 
     private final MemberRepository memberRepository;
     private final TeamRepository teamRepository;
+    private final FileStorageService fileStorageService;
 
     @Transactional
     public void saveTeamSettings(TeamSettingDto teamSettingDto, String memberId) {
@@ -68,6 +68,8 @@ public class TeamService {
         Optional<Team> team = memberRepository.findById(memberId).map(Member::getTeam);
         if (team.isPresent()) {
             return TeamSettingDto.builder()
+                    .memberId(memberId)
+                    .teamId(team.get().getId())
                     .teamNm(team.get().getTeamNm())
                     .teamInfo(team.get().getTeamInfo())
                     .timeZone(team.get().getTimeZone())
@@ -78,4 +80,18 @@ public class TeamService {
             return null;
         }
     }
+
+    public String findTeamIdByMemberId(String memberId) {
+        return memberRepository.findById(memberId)
+                .map(Member::getTeam)
+                .map(Team::getId)
+                .map(String::valueOf) // Long 타입의 ID를 String으로 변환
+                .orElse(null);
+    }
+
+    public void deleteLogo(String Filegroup,String memberId) {
+        fileStorageService.deleteFilesByGroupAndGroupId(Filegroup,memberId);
+    }
+
+
 }

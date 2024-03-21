@@ -1,6 +1,5 @@
 package com.themoah.themoah.domain.team.entity;
 
-import com.themoah.themoah.domain.company.entity.Company;
 import com.themoah.themoah.domain.member.entity.Member;
 import jakarta.persistence.*;
 import lombok.*;
@@ -25,8 +24,6 @@ public class Team {
 
     private String teamInfo; //팀정보
 
-    private String logoUrl; // 팀 로고 이미지 URL
-
     private String timeZone; // 타임존
 
     private String currency; // 통화
@@ -41,7 +38,6 @@ public class Team {
     public void updateTeamInfo(String teamNm, String teamInfo, String timeZone, String currency, String language) {
         this.teamNm = teamNm;
         this.teamInfo = teamInfo;
-        this.logoUrl = logoUrl;
         this.timeZone = timeZone;
         this.currency = currency;
         this.language = language;

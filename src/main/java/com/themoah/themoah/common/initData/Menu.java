@@ -52,7 +52,7 @@ public class Menu {
         Menus menuHome = Menus.builder()
                 .menuId(Long.valueOf(1))
                 .menuNm("Home")
-                .menuKey("sap-icon://home")
+                .icon("sap-icon://home")
                 .build();
         menuRepository.save(menuHome);
 
