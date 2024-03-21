@@ -2,7 +2,6 @@ package com.themoah.themoah.domain.team.dto;
 
 import com.themoah.themoah.domain.team.entity.Team;
 import lombok.*;
-import org.springframework.lang.NonNull;
 
 import static lombok.AccessLevel.PROTECTED;
 
@@ -12,14 +11,14 @@ import static lombok.AccessLevel.PROTECTED;
 @NoArgsConstructor(access = PROTECTED)
 @AllArgsConstructor(access = PROTECTED)
 public class TeamSettingDto {
+    private Long teamId;
     private String teamNm;
     private String teamInfo;
     private String timeZone;
     private String currency;
     private String language;
-
-
     private String memberId;
+    private String logoUrl;
 
 
     public TeamSettingDto(Team team, String memberId){
@@ -30,5 +29,6 @@ public class TeamSettingDto {
         this.language = team.getLanguage();
         this.memberId = memberId;
     }
+
 
 }
