@@ -3,6 +3,7 @@ package com.themoah.themoah.domain.auth.entity;
 
 import com.themoah.themoah.domain.auth.dto.AuthRequestDTO;
 import com.themoah.themoah.domain.member.entity.Member;
+import com.themoah.themoah.domain.team.entity.Team;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -20,11 +21,17 @@ public class Auth {
 
     private String  authNm;     // 권한 이름
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "team_id")
+    private Team team;
+
     @OneToMany(mappedBy = "auth", fetch = FetchType.LAZY)
     private List<SubAuth> subAuths;
 
     @OneToMany(mappedBy = "auth", fetch = FetchType.LAZY)
     private List<Member> members;
+
+
 
     @Builder
     public Auth(Long authId, String authNm) {
