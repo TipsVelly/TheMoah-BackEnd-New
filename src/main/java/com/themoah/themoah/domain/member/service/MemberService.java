@@ -13,7 +13,6 @@ import com.themoah.themoah.domain.verification.niceId.repository.NiceIdKeyReposi
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -40,14 +39,8 @@ public class MemberService {
     }
 
     @Transactional
-    public ResponseMemberDto verify(String token) {
-
-        Authentication authentication = tokenProvider.getAuthentication(token);
-        Authentication verifiedAuthentication = tokenProvider.authenticate(authentication);
-
-        String userId = tokenProvider.extractUserId(verifiedAuthentication);
-        return memberRepository.findById(userId).map(ResponseMemberDto::generate).get();
-
+    public ResponseMemberDto getMember(String memberId) {
+        return memberRepository.findById(memberId).map(ResponseMemberDto::generate).orElse(null);
     }
 
     /**

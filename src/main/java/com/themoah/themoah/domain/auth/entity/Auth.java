@@ -2,19 +2,17 @@ package com.themoah.themoah.domain.auth.entity;
 
 
 import com.themoah.themoah.domain.auth.dto.AuthRequestDTO;
+import com.themoah.themoah.domain.member.entity.Member;
+import com.themoah.themoah.domain.team.entity.Team;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.List;
 
 @Entity
 @Getter
-@Builder(toBuilder = true)
-@NoArgsConstructor
-@AllArgsConstructor
+@Setter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Auth {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,12 +21,36 @@ public class Auth {
 
     private String  authNm;     // 권한 이름
 
-    @OneToMany(mappedBy = "auth", cascade = CascadeType.ALL)
-    private List<SubAuth>  subAuth;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "team_id")
+    private Team team;
+
+    @OneToMany(mappedBy = "auth", fetch = FetchType.LAZY)
+    private List<SubAuth> subAuths;
+
+    @OneToMany(mappedBy = "auth", fetch = FetchType.LAZY)
+    private List<Member> members;
+
+
+
+    @Builder
+    public Auth(Long authId, String authNm) {
+        this.authId = authId;
+        this.authNm = authNm;
+    }
 
     public static Auth toEntity(AuthRequestDTO authRequestDTO) {
         return Auth.builder()
                 .authNm(authRequestDTO.getAuthNm())
                 .build();
+    }
+
+    /**
+     * 연관관계 편의 메서드
+     */
+
+    public void addSubAuth(SubAuth subAuth) {
+        this.subAuths.add(subAuth);
+        subAuth.setAuth(this);
     }
 }

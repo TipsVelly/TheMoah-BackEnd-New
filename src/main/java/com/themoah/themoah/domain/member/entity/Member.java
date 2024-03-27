@@ -1,6 +1,7 @@
 package com.themoah.themoah.domain.member.entity;
 
 import com.themoah.themoah.common.config.base.BaseTimeWithoutId;
+import com.themoah.themoah.domain.auth.entity.Auth;
 import com.themoah.themoah.domain.team.entity.Team;
 
 import jakarta.persistence.Column;
@@ -33,11 +34,11 @@ public class Member extends BaseTimeWithoutId {
     private Boolean master;
     private String  authType;
 
-
     @ManyToOne(fetch = FetchType.LAZY, optional = true)
     @JoinColumn(name = "team_id")
     private Team team;
 
-    
-
-} 
+    @ManyToOne(fetch = FetchType.LAZY, optional = true)
+    @JoinColumn(name = "auth_id")
+    private Auth auth;
+}

@@ -7,18 +7,14 @@ import com.themoah.themoah.domain.menu.repository.SubmenuRepository;
 import com.themoah.themoah.domain.menu.service.MenuService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.annotation.Order;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @Configuration
 @Profile("dev")
@@ -49,6 +45,7 @@ public class Menu {
         Long menuCnt = menuService.menuCnt();
         Long subCnt = 1L;
 
+/********************************* Home(홈) *********************************/
         Menus menuHome = Menus.builder()
                 .menuId(Long.valueOf(1))
                 .menuNm("Home")
@@ -56,48 +53,47 @@ public class Menu {
                 .build();
         menuRepository.save(menuHome);
 
+/********************************* SalesMgmt(영업) *********************************/
         Menus menuSales = Menus.builder()
                 .menuId(Long.valueOf(2))
-                .menuNm("영업관리")
+                .menuNm("영업")
                 .menuKey("saleMgmt")
                 .icon("sap-icon://sales-order-item").
                 build();
         menuRepository.save(menuSales);
 
         List<Submenu> submenuSales = new ArrayList<>();
+
         submenuSales.add(
                 Submenu.builder()
                         .menu(menuSales)
                         .submenuId(subCnt++)
-                        .submenuNm("견적요청")
+                        .submenuNm("발주")
+                        .submenuKey("orderMgmt")
+                        .build()
+        );
+
+        submenuSales.add(
+                Submenu.builder()
+                        .menu(menuSales)
+                        .submenuId(subCnt++)
+                        .submenuNm("견적")
                         .submenuKey("estOrder")
                         .build()
         );
-        submenuSales.add(
-                Submenu.builder()
-                        .menu(menuSales)
-                        .submenuId(subCnt++)
-                        .submenuNm("수주(S/O)등록")
-                        .submenuKey("salesOrder")
-                        .build()
-        );
-        submenuSales.add(
-                Submenu.builder()
-                        .menu(menuSales)
-                        .submenuId(subCnt++)
-                        .submenuNm("반품요청")
-                        .submenuKey("returnReq")
-                        .build()
-        );
+
 
         for(Submenu oneSubMenu : submenuSales){
             submenuRepository.save(oneSubMenu);
         }
 
+
+/********************************* PdctMgmt(구매) *********************************/
+
         List<Submenu> submenuPdct = new ArrayList<>();
         Menus menuPdct = Menus.builder()
                 .menuId(Long.valueOf(3))
-                .menuNm("구매관리")
+                .menuNm("구매")
                 .menuKey("pdctMgmt")
                 .icon("sap-icon://shipping-status")
                 .build();
@@ -107,40 +103,16 @@ public class Menu {
                 Submenu.builder().
                         menu(menuPdct).
                         submenuId(subCnt++).
-                        submenuNm("발주(P/O)관리").
-                        submenuKey("orderMgmt").
+                        submenuNm("납품").
+                        submenuKey("deliveryMgmt").
                         build()
         );
         submenuPdct.add(
                 Submenu.builder().
                         menu(menuPdct).
                         submenuId(subCnt++).
-                        submenuNm("입고관리").
-                        submenuKey("asnMgmt").
-                        build()
-        );
-        submenuPdct.add(
-                Submenu.builder().
-                        menu(menuPdct).
-                        submenuId(subCnt++).
-                        submenuNm("발주(P/O)관리").
-                        submenuKey("orderMgmt").
-                        build()
-        );
-        submenuPdct.add(
-                Submenu.builder().
-                        menu(menuPdct).
-                        submenuId(subCnt++).
-                        submenuNm("출고관리").
-                        submenuKey("dnMgmt").
-                        build()
-        );
-        submenuPdct.add(
-                Submenu.builder().
-                        menu(menuPdct).
-                        submenuId(subCnt++).
-                        submenuNm("반품관리").
-                        submenuKey("returnMgmt").
+                        submenuNm("생산").
+                        submenuKey("prodMgmt").
                         build()
         );
 
@@ -148,10 +120,12 @@ public class Menu {
             submenuRepository.save(oneSubMenu);
         }
 
+
+/********************************* SupplyMgmt(창고) ********************************/
         List<Submenu> submenuSupply = new ArrayList<>();
         Menus menuSupply = Menus.builder().
                 menuId(Long.valueOf(4)).
-                menuNm("공급관리").
+                menuNm("창고").
                 menuKey("supplyMgmt").
                 icon("sap-icon://supplier").
                 build();
@@ -161,16 +135,24 @@ public class Menu {
                 Submenu.builder().
                         menu(menuSupply).
                         submenuId(subCnt++).
-                        submenuNm("납품접수").
-                        submenuKey("deliveryReceipt").
+                        submenuNm("입고").
+                        submenuKey("asnMgmt").
                         build()
         );
         submenuSupply.add(
                 Submenu.builder().
                         menu(menuSupply).
                         submenuId(subCnt++).
-                        submenuNm("입고등록").
-                        submenuKey("asnReg").
+                        submenuNm("출고").
+                        submenuKey("dnMgmt").
+                        build()
+        );
+        submenuSupply.add(
+                Submenu.builder().
+                        menu(menuSupply).
+                        submenuId(subCnt++).
+                        submenuNm("조정").
+                        submenuKey("adjustMgmt").
                         build()
         );
 
@@ -178,10 +160,12 @@ public class Menu {
             submenuRepository.save(oneSubMenu);
         }
 
+
+/********************************* InfoMgmt(기준정보) ********************************/
         List<Submenu> submenuInfo = new ArrayList<>();
         Menus menuInfo = Menus.builder().
                 menuId(Long.valueOf(5)).
-                menuNm("기준정보관리").
+                menuNm("기준정보").
                 menuKey("infoMgmt").
                 icon("sap-icon://manager-insight").
                 build();
@@ -191,22 +175,41 @@ public class Menu {
                 Submenu.builder().
                         menu(menuInfo).
                         submenuId(subCnt++).
-                        submenuNm("품목관리").
-                        submenuKey("재고 조정").
+                        submenuNm("거래처").
+                        submenuKey("customerMgmt").
                         build()
         );
         submenuInfo.add(
                 Submenu.builder().
                         menu(menuInfo).
                         submenuId(subCnt++).
-                        submenuNm("품목관리").
-                        submenuKey("invenCheck").
+                        submenuNm("품목").
+                        submenuKey("gdsMgmt").
+                        build()
+        );
+        submenuInfo.add(
+                Submenu.builder().
+                        menu(menuInfo).
+                        submenuId(subCnt++).
+                        submenuNm("배송").
+                        submenuKey("delivery").
+                        build()
+        );
+        submenuInfo.add(
+                Submenu.builder().
+                        menu(menuInfo).
+                        submenuId(subCnt++).
+                        submenuNm("창고").
+                        submenuKey("storage").
                         build()
         );
 
         for(Submenu oneSubMenu : submenuInfo){
             submenuRepository.save(oneSubMenu);
         }
+
+
+/********************************* Admin(관리자) ********************************/
 
         List<Submenu> submenuAdmin = new ArrayList<>();
         Menus menuAdmin = Menus.builder().
@@ -221,7 +224,7 @@ public class Menu {
                 Submenu.builder().
                         menu(menuAdmin).
                         submenuId(subCnt++).
-                        submenuNm("팀관리").
+                        submenuNm("팀설정").
                         submenuKey("teamMgmt").
                         build()
         );
@@ -229,7 +232,7 @@ public class Menu {
                 Submenu.builder().
                         menu(menuAdmin).
                         submenuId(subCnt++).
-                        submenuNm("권한관리").
+                        submenuNm("권한설정").
                         submenuKey("authMgmt").
                         build()
         );
@@ -237,32 +240,8 @@ public class Menu {
                 Submenu.builder().
                         menu(menuAdmin).
                         submenuId(subCnt++).
-                        submenuNm("그룹관리").
-                        submenuKey("groupMgmt").
-                        build()
-        );
-        submenuAdmin.add(
-                Submenu.builder().
-                        menu(menuAdmin).
-                        submenuId(subCnt++).
-                        submenuNm("공통코드관리").
+                        submenuNm("환경설정").
                         submenuKey("comCodeMgmt").
-                        build()
-        );
-        submenuAdmin.add(
-                Submenu.builder().
-                        menu(menuAdmin).
-                        submenuId(subCnt++).
-                        submenuNm("고객사관리").
-                        submenuKey("customMgmt").
-                        build()
-        );
-        submenuAdmin.add(
-                Submenu.builder().
-                        menu(menuAdmin).
-                        submenuId(subCnt++).
-                        submenuNm("공급사관리").
-                        submenuKey("supplyMgmt").
                         build()
         );
 
