@@ -35,8 +35,8 @@ public class AuthMgmtController {
 
     @PostMapping("/save")
     @Operation(summary = "권한 저장 요청(사용자에 따른 기능은 추가로 작업 필요합니다)")
-    public ResponseEntity<?> saveAuth(@RequestBody AuthRequestDTO authRequestDTO) {
-        authMgmtService.saveAuth(authRequestDTO);
+    public ResponseEntity<?> saveAuth(@RequestBody AuthRequestDTO authRequestDTO, Principal principal) {
+        authMgmtService.saveAuth(authRequestDTO, principal);
         return ResponseEntity.ok().build();
     }
 }
