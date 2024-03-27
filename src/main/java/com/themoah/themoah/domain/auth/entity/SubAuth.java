@@ -24,17 +24,29 @@ public class SubAuth {
     private String subAuthKey;    // 서브 권한 이름
     private String subAuthNm;     // 서브 권한 이름
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "auth_id")
     private Auth auth;              // 권한
 
-    public static List<SubAuth> toEntity(AuthRequestDTO authRequestDTO) {
+    public static List<SubAuth> toEntityList(AuthRequestDTO authRequestDTO, Auth auth) {
         List<SubAuthRequestDTO> subAuthRequestDTOList = authRequestDTO.getAuthRequestDTO();
         return subAuthRequestDTOList.stream()
                 .map(subAuthRequestDTO -> SubAuth.builder()
                         .subAuthNm(subAuthRequestDTO.getSubAuthNm())
                         .subAuthKey(subAuthRequestDTO.getSubAuthKey())
+                        .auth(auth)
                         .build())
                 .collect(Collectors.toList());
     }
+
+    /**
+     * 연관관계 편의 메서드
+     * @param auth
+     */
+    
+    public void setAuth(Auth auth) {
+        this.auth = auth;
+        auth.getSubAuths().add(this);
+    }
+
 }
