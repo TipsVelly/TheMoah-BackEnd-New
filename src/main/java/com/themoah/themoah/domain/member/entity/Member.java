@@ -41,4 +41,5 @@ public class Member extends BaseTimeWithoutId {
     @ManyToOne(fetch = FetchType.LAZY, optional = true)
     @JoinColumn(name = "auth_id")
     private Auth auth;
+
 }
