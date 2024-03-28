@@ -6,11 +6,11 @@ import com.themoah.themoah.domain.auth.dto.AuthResponseDTO;
 import com.themoah.themoah.domain.auth.service.AuthMgmtService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
 import java.util.List;
+import java.util.Map;
 
 import static org.springframework.util.MimeTypeUtils.APPLICATION_JSON_VALUE;
 
@@ -35,8 +35,8 @@ public class AuthMgmtController {
 
     @PostMapping("/save")
     @Operation(summary = "권한 저장 요청(사용자에 따른 기능은 추가로 작업 필요합니다)")
-    public ResponseEntity<?> saveAuth(@RequestBody AuthRequestDTO authRequestDTO, Principal principal) {
-        authMgmtService.saveAuth(authRequestDTO, principal);
-        return ResponseEntity.ok().build();
+    public Map<String, Boolean> saveAuth(@RequestBody AuthRequestDTO authRequestDTO, Principal principal) {
+        boolean rst = authMgmtService.saveAuth(authRequestDTO, principal);
+        return Map.of("rst", rst);
     }
 }

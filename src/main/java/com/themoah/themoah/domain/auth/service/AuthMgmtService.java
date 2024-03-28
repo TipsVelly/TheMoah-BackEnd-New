@@ -18,7 +18,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.security.Principal;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -32,82 +31,105 @@ public class AuthMgmtService {
 
     @Transactional
     public List<AuthResponseDTO> getAuthList(Principal principal) {
+        //1. 토큰에서 회원아이디를 가져온다.
         String memberId = principal.getName();
 
-        // 1. member 테이블에서 해당 회원의 auth 정보 가져오기
+        //2. 토큰에서 가져온 회원정보의 팀 정보를 가져온다.
+        Team team = memberRepository.findById(memberId).map(Member::getTeam).orElseThrow(() -> new IllegalArgumentException("팀 정보를 가져올 수 없습니다."));
 
-        // 2. member team 정보 가져오기
-        memberRepository.findById(memberId).map(Member::getTeam).get()
-                .getMember().stream()
-                .map(Member::getAuth)
+        //3. 팀정보에서 팀아이디를 추출한다.
+        Long teamId = team.getId();
+
+        //4. 추출한 팀아이디를 가지고, AuthMap에서 팀아아디를 가지고 매핑정보를 검색한다.
+        List<AuthMap> allByAuthMapIdTeamId = authMapRepository.findAllByAuthMapIdTeamId(teamId);
+
+        //5. 검색된 매핑정보 리스트에서 authNm<String> List로 변환
+        List<Auth> authList = allByAuthMapIdTeamId.stream()
+                .map(AuthMap::getAuth)
                 .collect(Collectors.toList());
 
 
+        // authList를 다시 List<AuthResponseDTO>로 변환
+        List<AuthResponseDTO> responseDTOList = authList.stream().map(auth -> {
+            Long authId = auth.getAuthId();
+            String authNm = auth.getAuthNm();
+            List<String> members = auth.getMembers().stream()
+                    .filter(member -> member.getTeam().getId().equals(teamId))
+                    .map(Member::getMemberId)
+                    .collect(Collectors.toList());
 
-        Long authId = memberRepository.findById(memberId).map(Member::getAuth).get().getAuthId();
-        if(authId == null) {
-            return new ArrayList<AuthResponseDTO>();
-        }
-        return authMgmtRepository.findById(authId).stream()
-                .map(AuthResponseDTO::convert)
-                .collect(Collectors.toList());
+            AuthResponseDTO authResponseDTO = AuthResponseDTO.builder()
+                    .authId(authId)
+                    .authNm(authNm)
+                    .members(members)
+                    .build();
+            return authResponseDTO;
+        }).collect(Collectors.toList());
+
+        return responseDTOList;
     }
 
     @Transactional
     public List<AuthMemberRespnseDTO> getAuthMemberList(Principal principal) {
+        // 1. 토큰에서 회원아이디를 가져온다.
         String memberId = principal.getName();
-        List<AuthMemberRespnseDTO> rst;
 
-        Long teamId = memberRepository.findById(memberId).map(member -> {
-            return member.getTeam() != null ? member.getTeam().getId() : null;
-        }).orElse(null);
+        // 2. teamId를 추출한다.
+        Team team = memberRepository.findById(memberId).map(Member::getTeam).orElseThrow(() -> new IllegalArgumentException("팀 정보를 찾을 수 없습니다."));
 
-        if(teamId == null) {
-            rst = memberRepository.findById(memberId).stream().map(member -> {
-                AuthMemberRespnseDTO authMemberRespnseDTO = AuthMemberRespnseDTO.builder()
-                        .memberId(member.getMemberId())
-                        .memberNm(member.getMemberName())
-                        .build();
-                return authMemberRespnseDTO;
-            }).toList();
-        } else {
-            rst = memberRepository.findAllByTeamId(teamId).stream()
-                    .map(AuthMemberRespnseDTO::convert)
-                    .toList();
-        }
-        return rst;
+        // 3. 해당 팀에서 속한 멤버정보를 가져온다.
+        List<AuthMemberRespnseDTO> authMemberRespnseDTOList = team.getMember().stream().map(AuthMemberRespnseDTO::convert).collect(Collectors.toList());
+        return authMemberRespnseDTOList;
     }
 
     @Transactional
-    public void saveAuth(AuthRequestDTO authRequestDTO, Principal principal) {
+    public boolean saveAuth(AuthRequestDTO authRequestDTO, Principal principal) {
+
+        //1. 토큰에서 회원아이디를 가져온다.
         String memberId = principal.getName();
-        Team team = memberRepository.findById(memberId).map(Member::getTeam).orElse(null);
-        Long teamId;
-        if(team == null) {
-            teamId = -1L;
-        } else {
-            teamId = team.getId();
-        }
-        // 매핑정보 검색
+
+        //2. 토큰에서 가져온 회원정보의 팀 정보를 가져온다.
+        Team team = memberRepository.findById(memberId).map(Member::getTeam).orElseThrow(() -> new IllegalArgumentException("팀 정보를 가져올 수 없습니다."));
+
+        //3. 팀정보에서 팀아이디를 추출한다.
+        Long teamId = team.getId();
+
+        //4. 추출한 팀아이디를 가지고, AuthMap에서 팀아아디를 가지고 매핑정보를 검색한다.
         List<AuthMap> allByAuthMapIdTeamId = authMapRepository.findAllByAuthMapIdTeamId(teamId);
 
+        //5. 검색된 매핑정보 리스트에서 authNm<String> List로 변환
+        List<String> authNmList = allByAuthMapIdTeamId.stream()
+                .map(AuthMap::getAuth)
+                .map(Auth::getAuthNm)
+                .collect(Collectors.toList());
+
+        //6. 해당 리스트에서 중복된 authNm이 있다면 예외처리
+        if(authNmList.contains(authRequestDTO.getAuthNm())) {
+            throw new IllegalArgumentException("중복된 권한이름입니다.");
+        }
+
+        //7. 저장 로직 진행
+        
+        //7-1. 메인 auth 저장
         Auth auth = Auth.toEntity(authRequestDTO);
         authMgmtRepository.save(auth);
-
+        
+        
+        //7-2 서브 auth 저장
         List<SubAuth> subAuthList = SubAuth.toEntityList(authRequestDTO, auth);
         subAuthMgmtRepository.saveAll(subAuthList);
 
-        if(allByAuthMapIdTeamId.size() <= 0) {
-            // 매핑정보 저장
-            AuthMap authMap = AuthMap.builder()
-                    .authMapId(AuthMapId.builder()
-                            .authId(auth.getAuthId())
-                            .teamId(teamId)
-                            .build())
-                    .auth(auth)
-                    .team(team)
-                    .build();
-            authMapRepository.save(authMap);
-        }
+        // 매핑정보 저장
+        AuthMap authMap = AuthMap.builder()
+                .authMapId(AuthMapId.builder()
+                        .authId(auth.getAuthId())
+                        .teamId(teamId)
+                        .build())
+                .auth(auth)
+                .team(team)
+                .build();
+        authMapRepository.save(authMap);
+
+        return true;
     }
 }
