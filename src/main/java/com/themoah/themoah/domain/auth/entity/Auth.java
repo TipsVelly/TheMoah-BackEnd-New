@@ -20,7 +20,7 @@ public class Auth {
 
     private String  authNm;     // 권한 이름
 
-    @OneToMany(mappedBy = "auth", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "auth", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<SubAuth> subAuths;
 
     @OneToMany(mappedBy = "auth", fetch = FetchType.LAZY)
