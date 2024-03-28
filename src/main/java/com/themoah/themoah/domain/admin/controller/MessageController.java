@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/message")
+@RequestMapping("/api/v1/message")
 @RequiredArgsConstructor
 @Slf4j
 public class MessageController {
@@ -26,5 +26,10 @@ public class MessageController {
         return service.findAll();
     }
 
+
+    @PostMapping("/update")
+    public void update(@RequestBody MessageDto dto){
+        service.updateMessage(dto);
+    }
 
 }

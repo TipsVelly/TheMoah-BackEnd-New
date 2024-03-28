@@ -3,6 +3,7 @@ package com.themoah.themoah.domain.admin.service;
 import com.themoah.themoah.domain.admin.dto.MessageDto;
 import com.themoah.themoah.domain.admin.entity.Message;
 import com.themoah.themoah.domain.admin.repository.MessageRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -23,6 +24,7 @@ public class MessageService {
                     .id(message.getId())
                     .title(message.getTitle())
                     .message(message.getMessage())
+                    .messageCode(message.getMessageCode())
                     .description(message.getDescription())
                     .build();
             messageDtoList.add(dto);
@@ -31,19 +33,26 @@ public class MessageService {
     }
 
     public void save(MessageDto dto) {
-        Message message = Message.builder()
-                .title(dto.getTitle())
-                .message(dto.getMessage())
-                .description(dto.getDescription())
-                .build();
-        messageRepository.save(message);
+        Optional<Message> findMessage = messageRepository.findByMessageCode(dto.getMessageCode());
+        if (findMessage.isPresent()) {
+            throw new RuntimeException("이미 존재하는 메시지 코드입니다.");
+        }else{
+            Message message = Message.builder()
+                    .title(dto.getTitle())
+                    .message(dto.getMessage())
+                    .messageCode(dto.getMessageCode())
+                    .description(dto.getDescription())
+                    .build();
+            messageRepository.save(message);
+        }
     }
-
-    public void updateMessage(Long id, String message) {
-        Optional<Message> optionalMessage = messageRepository.findById(id);
+    @Transactional
+    public void updateMessage(MessageDto dto) {
+        Optional<Message> optionalMessage = messageRepository.findById(dto.getId());
         if (optionalMessage.isPresent()) {
             Message findMessage = optionalMessage.get();
-            findMessage.setMessage(message);
+            findMessage.setMessage(dto.getMessage());
+            messageRepository.save(findMessage);
         }
     }
 
