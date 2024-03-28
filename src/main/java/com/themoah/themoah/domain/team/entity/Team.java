@@ -31,8 +31,8 @@ public class Team {
     private String language; // 언어
 
     @OneToMany(mappedBy = "team", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
     private List<Member> member = new ArrayList<>();
-
 
     // 변경 메서드
     public void updateTeamInfo(String teamNm, String teamInfo, String timeZone, String currency, String language) {
