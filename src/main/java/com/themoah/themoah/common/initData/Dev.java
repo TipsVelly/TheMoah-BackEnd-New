@@ -85,6 +85,10 @@ public class Dev {
         return memberRepository.save(admin);
     }
     private Auth initAuth(Team team) {
+        if(team == null) {
+            return null;
+        }
+
         //메인 권한 생성
         Auth auth = Auth.builder()
                 .authNm("default")
