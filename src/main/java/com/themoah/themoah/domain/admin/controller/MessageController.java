@@ -16,19 +16,19 @@ public class MessageController {
     private final MessageService service;
 
     @PostMapping("/save")
-    public void save(@RequestBody MessageDto dto){
-        log.info("dto={}",dto);
+    public void save(@RequestBody MessageDto dto) {
         service.save(dto);
 
     }
+
     @GetMapping("/list")
-    public List<MessageDto> list(){
-        return service.findAll();
+    public List<MessageDto> list(@RequestBody MessageDto dto) {
+        return service.findAll(dto);
     }
 
 
     @PostMapping("/update")
-    public void update(@RequestBody MessageDto dto){
+    public void update(@RequestBody MessageDto dto) {
         service.updateMessage(dto);
     }
 

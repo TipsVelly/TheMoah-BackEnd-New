@@ -2,6 +2,7 @@ package com.themoah.themoah.domain.admin.service;
 
 import com.themoah.themoah.domain.admin.dto.MessageDto;
 import com.themoah.themoah.domain.admin.entity.Message;
+import com.themoah.themoah.domain.admin.repository.MessageQueryRepository;
 import com.themoah.themoah.domain.admin.repository.MessageRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -15,22 +16,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class MessageService {
     private final MessageRepository messageRepository;
-
-    public List<MessageDto> findAll() {
-        List<Message> messageList = messageRepository.findAll();
-        List<MessageDto> messageDtoList = new ArrayList<>();
-        for(Message message : messageList){
-            MessageDto dto = MessageDto.builder()
-                    .id(message.getId())
-                    .title(message.getTitle())
-                    .message(message.getMessage())
-                    .messageCode(message.getMessageCode())
-                    .description(message.getDescription())
-                    .build();
-            messageDtoList.add(dto);
-        }
-        return messageDtoList;
-    }
+    private final MessageQueryRepository queryRepository;
 
     public void save(MessageDto dto) {
         Optional<Message> findMessage = messageRepository.findByMessageCode(dto.getMessageCode());
@@ -54,6 +40,21 @@ public class MessageService {
             findMessage.setMessage(dto.getMessage());
             messageRepository.save(findMessage);
         }
+    }
+    public List<MessageDto> findAll(MessageDto dto) {
+        List<Message> messageList = queryRepository.findAll(dto);
+        List<MessageDto> messageDtoList = new ArrayList<>();
+        for(Message message : messageList){
+            MessageDto messageDto = MessageDto.builder()
+                    .id(message.getId())
+                    .title(message.getTitle())
+                    .message(message.getMessage())
+                    .messageCode(message.getMessageCode())
+                    .description(message.getDescription())
+                    .build();
+            messageDtoList.add(messageDto);
+        }
+        return messageDtoList;
     }
 
 }

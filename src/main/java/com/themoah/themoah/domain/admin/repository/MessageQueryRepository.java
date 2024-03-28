@@ -9,6 +9,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.util.StringUtils;
 
 import java.util.List;
+import java.util.Objects;
 
 import static com.themoah.themoah.domain.admin.entity.QMessage.message1;
 
@@ -18,6 +19,7 @@ public class MessageQueryRepository {
     private final JPAQueryFactory queryFactory;
 
     public List<Message> findAll(MessageDto dto){
+
         return queryFactory.select(message1)
                 .from(message1)
                 .where(
@@ -27,6 +29,9 @@ public class MessageQueryRepository {
     }
 
     private BooleanExpression likeMessageCode(String messageCode) {
+        if(Objects.equals(messageCode, "All")){
+            messageCode="";
+        }
         if (StringUtils.hasText(messageCode)) {
             return (message1.messageCode.like("%" + messageCode + "%"));
         }
