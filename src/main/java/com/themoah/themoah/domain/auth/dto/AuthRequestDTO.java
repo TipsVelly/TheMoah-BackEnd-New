@@ -14,7 +14,6 @@ import java.util.List;
 public class AuthRequestDTO {
 
     private String authNm;
-
     private List<SubAuthRequestDTO>  authRequestDTO;
 
 }

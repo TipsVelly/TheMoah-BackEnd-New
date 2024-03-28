@@ -15,5 +15,4 @@ public class NiceIdKey extends BaseTimeWithoutId {
     @Id
     private String tokenVersionId;  //토큰서버버전아이디
     private String key;             //암호화 키
-    private String responseNo;      //응답 고유번호
 }

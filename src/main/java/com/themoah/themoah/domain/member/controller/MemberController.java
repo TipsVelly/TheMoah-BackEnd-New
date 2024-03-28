@@ -6,7 +6,6 @@ import com.themoah.themoah.common.util.niceid.NiceIdVerification;
 import com.themoah.themoah.common.util.niceid.dto.NiceIdEncData;
 import com.themoah.themoah.domain.member.dto.LoginDto;
 import com.themoah.themoah.domain.member.dto.RequestMemberDto;
-import com.themoah.themoah.domain.member.dto.RequestTokenDto;
 import com.themoah.themoah.domain.member.dto.ResponseMemberDto;
 import com.themoah.themoah.domain.member.service.MemberService;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +19,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.view.RedirectView;
 
+import java.security.Principal;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -82,14 +82,13 @@ public class MemberController {
 
     /**
      * 토큰을 확인 후 사용자 정보로 내려주는 컨트롤러
-     * @param req
+     * @param memberFromToken
      * @return
      */
     @PostMapping("/verify")
-    public ResponseMemberDto verify(@RequestBody RequestTokenDto req) {
-        String token = req.getToken();
-
-        return memberService.verify(token);
+    public ResponseMemberDto verify(Principal memberFromToken) {
+        String memberId = memberFromToken.getName();
+        return memberService.getMember(memberId);
     }
     
     /**
