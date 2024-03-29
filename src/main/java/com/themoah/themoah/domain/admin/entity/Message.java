@@ -14,6 +14,7 @@ public class Message {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name= "message_id")
     private Long id;
+    private String codeGroup;
     private String messageCode;
     private String title;
     private String message;

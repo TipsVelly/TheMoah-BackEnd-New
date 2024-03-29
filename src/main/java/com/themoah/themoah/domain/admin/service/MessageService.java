@@ -6,6 +6,7 @@ import com.themoah.themoah.domain.admin.repository.MessageQueryRepository;
 import com.themoah.themoah.domain.admin.repository.MessageRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -14,6 +15,7 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class MessageService {
     private final MessageRepository messageRepository;
     private final MessageQueryRepository queryRepository;
@@ -25,6 +27,7 @@ public class MessageService {
         }else{
             Message message = Message.builder()
                     .title(dto.getTitle())
+                    .codeGroup(dto.getCodeGroup())
                     .message(dto.getMessage())
                     .messageCode(dto.getMessageCode())
                     .description(dto.getDescription())
@@ -41,12 +44,14 @@ public class MessageService {
             messageRepository.save(findMessage);
         }
     }
-    public List<MessageDto> findAll(MessageDto dto) {
-        List<Message> messageList = queryRepository.findAll(dto);
+    public List<MessageDto> findAll(String codeGroup) {
+        List<Message> messageList = queryRepository.findByMessageCode(codeGroup);
+
         List<MessageDto> messageDtoList = new ArrayList<>();
         for(Message message : messageList){
             MessageDto messageDto = MessageDto.builder()
                     .id(message.getId())
+                    .codeGroup(message.getCodeGroup())
                     .title(message.getTitle())
                     .message(message.getMessage())
                     .messageCode(message.getMessageCode())

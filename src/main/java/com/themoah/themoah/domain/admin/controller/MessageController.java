@@ -22,13 +22,16 @@ public class MessageController {
     }
 
     @GetMapping("/list")
-    public List<MessageDto> list(@RequestBody MessageDto dto) {
-        return service.findAll(dto);
+    public List<MessageDto> list(@RequestParam("codeGroup") final String codeGroup) {
+
+        return service.findAll(codeGroup);
     }
 
 
     @PostMapping("/update")
     public void update(@RequestBody MessageDto dto) {
+        log.info("updateData = {}",dto.toString());
+
         service.updateMessage(dto);
     }
 
