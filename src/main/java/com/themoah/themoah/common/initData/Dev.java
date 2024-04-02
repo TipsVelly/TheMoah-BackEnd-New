@@ -1,6 +1,6 @@
 package com.themoah.themoah.common.initData;
 
-import com.themoah.themoah.domain.auth.dto.AuthMapId;
+import com.themoah.themoah.domain.auth.entity.AuthMapId;
 import com.themoah.themoah.domain.auth.entity.Auth;
 import com.themoah.themoah.domain.auth.entity.AuthMap;
 import com.themoah.themoah.domain.auth.entity.SubAuth;

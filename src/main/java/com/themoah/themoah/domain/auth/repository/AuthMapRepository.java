@@ -1,6 +1,6 @@
 package com.themoah.themoah.domain.auth.repository;
 
-import com.themoah.themoah.domain.auth.dto.AuthMapId;
+import com.themoah.themoah.domain.auth.entity.AuthMapId;
 import com.themoah.themoah.domain.auth.entity.AuthMap;
 import org.springframework.data.jpa.repository.JpaRepository;
 

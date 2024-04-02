@@ -1,4 +1,4 @@
-package com.themoah.themoah.domain.auth.dto;
+package com.themoah.themoah.domain.auth.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.themoah.themoah.domain.auth.entity.Auth;

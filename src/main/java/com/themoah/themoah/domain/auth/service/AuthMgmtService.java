@@ -1,11 +1,12 @@
 package com.themoah.themoah.domain.auth.service;
 
-import com.themoah.themoah.domain.auth.dto.AuthMapId;
-import com.themoah.themoah.domain.auth.dto.AuthMemberRespnseDTO;
-import com.themoah.themoah.domain.auth.dto.AuthRequestDTO;
-import com.themoah.themoah.domain.auth.dto.AuthResponseDTO;
+import com.themoah.themoah.domain.auth.dto.request.AuthRequestDTO;
+import com.themoah.themoah.domain.auth.dto.response.AuthMemberRespnseDTO;
+import com.themoah.themoah.domain.auth.dto.response.AuthResponseSelectDTO;
+import com.themoah.themoah.domain.auth.dto.response.AuthResponseViewDTO;
 import com.themoah.themoah.domain.auth.entity.Auth;
 import com.themoah.themoah.domain.auth.entity.AuthMap;
+import com.themoah.themoah.domain.auth.entity.AuthMapId;
 import com.themoah.themoah.domain.auth.entity.SubAuth;
 import com.themoah.themoah.domain.auth.repository.AuthMapRepository;
 import com.themoah.themoah.domain.auth.repository.AuthMgmtRepository;
@@ -18,6 +19,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.security.Principal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -30,7 +32,7 @@ public class AuthMgmtService {
     private final AuthMapRepository authMapRepository;
 
     @Transactional
-    public List<AuthResponseDTO> getAuthList(Principal principal) {
+    public List<AuthResponseViewDTO> getAuthList(Principal principal) {
         //1. 토큰에서 회원아이디를 가져온다.
         String memberId = principal.getName();
 
@@ -50,7 +52,7 @@ public class AuthMgmtService {
 
 
         // authList를 다시 List<AuthResponseDTO>로 변환
-        List<AuthResponseDTO> responseDTOList = authList.stream().map(auth -> {
+        List<AuthResponseViewDTO> responseDTOList = authList.stream().map(auth -> {
             Long authId = auth.getAuthId();
             String authNm = auth.getAuthNm();
             List<String> members = auth.getMembers().stream()
@@ -58,7 +60,7 @@ public class AuthMgmtService {
                     .map(Member::getMemberId)
                     .collect(Collectors.toList());
 
-            AuthResponseDTO authResponseDTO = AuthResponseDTO.builder()
+            AuthResponseViewDTO authResponseDTO = AuthResponseViewDTO.builder()
                     .authId(authId)
                     .authNm(authNm)
                     .members(members)
@@ -129,6 +131,75 @@ public class AuthMgmtService {
                 .team(team)
                 .build();
         authMapRepository.save(authMap);
+
+        return true;
+    }
+    @Transactional
+    public boolean updateAuth(AuthRequestDTO authRequestDTO) {
+        // AuthId로 권한 정보 조회
+        Auth auth = authMgmtRepository.findById(authRequestDTO.getAuthId()).orElseThrow(() -> new IllegalArgumentException(("권한을 조회할 수 없습니다.")));
+        List<SubAuth> subReqAuthList = SubAuth.toEntityList(authRequestDTO, auth); // request 정보
+        List<SubAuth> subAuths = auth.getSubAuths(); // authId로 해당하는 subAuth List 정보
+
+        List<Long> toDeleteIdList = new ArrayList<>();
+        List<SubAuth> toAddList = new ArrayList<>();
+        List<String> subAuthKeyList = subAuths.stream().map(SubAuth::getSubAuthKey).toList();
+
+        subReqAuthList.forEach(subReqAuth -> {
+            if(subAuthKeyList.contains(subReqAuth.getSubAuthKey())) {
+                // 1.기존 subAuthList 요소와 일치하는 요소를 찾아서 삭제 리스트 추가합니다.
+                subAuths.stream()
+                        .filter(subAuth -> subAuth.getSubAuthKey().equals(subReqAuth.getSubAuthKey()))
+                        .map(SubAuth::getSubAuthId)
+                        .toList()
+                        .forEach(toDeleteIdList::add);
+            } else {
+                // 2. 기존 요소에 없는 요구사항 요소를 추가합니다.
+                toAddList.add(subReqAuth);
+            }
+        });
+
+        subAuthMgmtRepository.deleteAllById(toDeleteIdList);
+        subAuthMgmtRepository.saveAll(toAddList);
+
+        return true;
+    }
+
+    @Transactional
+    public AuthResponseSelectDTO getAuthSelectList(Long authId) {
+        Auth auth = authMgmtRepository.findById(authId).orElseThrow(() -> new IllegalArgumentException("권한을 조회할 수 없습니다."));
+        AuthResponseSelectDTO authResponseSelectDTO = AuthResponseSelectDTO.convert(auth);
+        return authResponseSelectDTO;
+    }
+
+    @Transactional
+    public boolean deleteAuth(Long authId) {
+        // 권한 조회
+        Auth auth = authMgmtRepository.findById(authId).orElseThrow(() -> new IllegalArgumentException("권한을 조회할 수 없습니다."));
+
+        // 서브 권한 삭제
+        List<Long> subAuthIdList = auth.getSubAuths().stream().map(SubAuth::getSubAuthId).toList();
+        subAuthMgmtRepository.deleteAllById(subAuthIdList);
+
+        // 매핑 정보 삭제(Cascade.ALL 자동삭제)
+
+        // 권한 삭제
+        Long findAuthId = auth.getAuthId();
+        authMgmtRepository.deleteById(findAuthId);
+
+        return true;
+    }
+
+    @Transactional
+    public boolean changeMemberAuth(Long authId, Principal principal) {
+        String memberId = principal.getName();
+        
+        // 멤버 조회
+        Member member = memberRepository.findById(memberId).orElseThrow(() -> new IllegalArgumentException("멤버를 조회할 수 없습니다."));
+        
+        // 권한 조회
+        Auth auth = authMgmtRepository.findById(authId).orElseThrow(() -> new IllegalArgumentException("권한을 조회할 수 없습니다."));
+        member.setAuth(auth);
 
         return true;
     }

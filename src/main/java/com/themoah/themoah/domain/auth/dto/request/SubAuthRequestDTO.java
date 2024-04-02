@@ -1,4 +1,4 @@
-package com.themoah.themoah.domain.auth.dto;
+package com.themoah.themoah.domain.auth.dto.request;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
