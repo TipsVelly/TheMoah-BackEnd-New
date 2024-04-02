@@ -1,17 +1,20 @@
 package com.themoah.themoah.domain.auth.entity;
 
 
-import com.themoah.themoah.domain.auth.dto.AuthRequestDTO;
+import com.themoah.themoah.domain.auth.dto.request.AuthRequestDTO;
 import com.themoah.themoah.domain.member.entity.Member;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
 @Getter
 @Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PROTECTED)
+@Builder
 public class Auth {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -20,17 +23,18 @@ public class Auth {
 
     private String  authNm;     // 권한 이름
 
-    @OneToMany(mappedBy = "auth", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<SubAuth> subAuths;
+    @OneToMany(mappedBy = "auth", fetch = FetchType.LAZY)
+    @Builder.Default
+    private List<SubAuth> subAuths = new ArrayList<>();
 
     @OneToMany(mappedBy = "auth", fetch = FetchType.LAZY)
-    private List<Member> members;
+    @Builder.Default
+    private List<Member> members = new ArrayList<>();
 
-    @Builder
-    public Auth(Long authId, String authNm) {
-        this.authId = authId;
-        this.authNm = authNm;
-    }
+    @OneToMany(mappedBy = "auth", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @Builder.Default
+    private List<AuthMap> authMaps = new ArrayList<>();
+
 
     public static Auth toEntity(AuthRequestDTO authRequestDTO) {
         return Auth.builder()
