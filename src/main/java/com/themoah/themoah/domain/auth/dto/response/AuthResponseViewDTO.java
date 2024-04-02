@@ -1,4 +1,4 @@
-package com.themoah.themoah.domain.auth.dto;
+package com.themoah.themoah.domain.auth.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.themoah.themoah.domain.auth.entity.Auth;
@@ -10,7 +10,7 @@ import java.util.List;
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 @Builder
-public class AuthResponseDTO {
+public class AuthResponseViewDTO {
     @JsonProperty(value = "auth_id")
     private Long authId;
 
@@ -20,8 +20,8 @@ public class AuthResponseDTO {
     @JsonProperty(value = "members")
     private List<String> members;
 
-    public static AuthResponseDTO convert(Auth auth) {
-        return AuthResponseDTO.builder()
+    public static AuthResponseViewDTO convert(Auth auth) {
+        return AuthResponseViewDTO.builder()
                 .authId(auth.getAuthId())
                 .authNm(auth.getAuthNm())
                 .build();

@@ -1,6 +1,5 @@
 package com.themoah.themoah.domain.auth.entity;
 
-import com.themoah.themoah.domain.auth.dto.AuthMapId;
 import com.themoah.themoah.domain.team.entity.Team;
 import jakarta.persistence.*;
 import lombok.*;

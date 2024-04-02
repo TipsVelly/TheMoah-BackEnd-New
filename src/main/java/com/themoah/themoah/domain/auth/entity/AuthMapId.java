@@ -1,4 +1,4 @@
-package com.themoah.themoah.domain.auth.dto;
+package com.themoah.themoah.domain.auth.entity;
 
 import jakarta.persistence.Embeddable;
 import lombok.*;

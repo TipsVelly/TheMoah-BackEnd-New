@@ -1,4 +1,4 @@
-package com.themoah.themoah.domain.auth.dto;
+package com.themoah.themoah.domain.auth.dto.request;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -12,7 +12,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class AuthRequestDTO {
-
+    private Long authId;
     private String authNm;
     private List<SubAuthRequestDTO>  authRequestDTO;
 

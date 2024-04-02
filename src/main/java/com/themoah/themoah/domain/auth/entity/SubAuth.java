@@ -1,18 +1,28 @@
 package com.themoah.themoah.domain.auth.entity;
 
-import com.themoah.themoah.domain.auth.dto.AuthRequestDTO;
-import com.themoah.themoah.domain.auth.dto.SubAuthRequestDTO;
+import com.themoah.themoah.domain.auth.dto.request.AuthRequestDTO;
+import com.themoah.themoah.domain.auth.dto.request.SubAuthRequestDTO;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Entity
+//@Table(
+//    name = "sub_auth",
+//        uniqueConstraints = {
+//            @UniqueConstraint(
+//                    name = "UniqueSubAuthKeyAndAuthId",
+//                    columnNames = {
+//                            "sub_auth_key",
+//                            "auth_id"
+//                    }
+//            )
+//        }
+//)
 @Getter
+@Setter
 @Builder(toBuilder = true)
 @NoArgsConstructor
 @AllArgsConstructor
@@ -21,7 +31,9 @@ public class SubAuth {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "sub_auth_id")
     private Long subAuthId;         // 서브 권한 아이디
+    @Column(name = "sub_auth_key")
     private String subAuthKey;    // 서브 권한 이름
+    @Column(name = "sub_auth_nm")
     private String subAuthNm;     // 서브 권한 이름
 
     @ManyToOne(fetch = FetchType.LAZY)
