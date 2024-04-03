@@ -8,8 +8,10 @@ import com.themoah.themoah.domain.member.dto.LoginDto;
 import com.themoah.themoah.domain.member.dto.RequestMemberDto;
 import com.themoah.themoah.domain.member.dto.ResponseMemberDto;
 import com.themoah.themoah.domain.member.service.MemberService;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -31,6 +33,8 @@ public class MemberController {
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final TokenProvider tokenProvider;
     private final MemberService memberService;
+    @Value("${server.port}")
+    private int serverPort;
 
     @PostMapping("/login")
     public Map<String, Object> Login(@RequestBody LoginDto user) {
@@ -104,23 +108,39 @@ public class MemberController {
     }
 
     @GetMapping("/getNiceIdEncData")
-    public NiceIdEncData getNiceIdEncData(@RequestParam(name = "returnURL", required = false) String returnURL) {
+    public NiceIdEncData getNiceIdEncData(HttpServletRequest request) {
         String clientId = NiceIdVerification.CLIENT_ID;
         String clientSecret = NiceIdVerification.CLIENT_SECRET;
         String productId = NiceIdVerification.PRODUCT_ID;
+
+        String returnURL = generateURL(request, "/member/acceptNiceIdResult", serverPort);
 
         return memberService.getNiceIdEncData(clientId, clientSecret, productId, returnURL);
     }
 
     @RequestMapping(value = "/acceptNiceIdResult", method = {RequestMethod.POST, RequestMethod.GET})
-    public RedirectView acceptNiceIdResult(@RequestParam("token_version_id") String tokenVersionId, @RequestParam("enc_data") String encData, @RequestParam("integrity_value") String integrityValue) {
+    public RedirectView acceptNiceIdResult(@RequestParam("token_version_id") String tokenVersionId,
+                                           @RequestParam("enc_data") String encData,
+                                           @RequestParam("integrity_value") String integrityValue,
+                                           HttpServletRequest request
+    )
+    {
+        String redirectURL = generateURL(request, "/view/outer/niceIdResult.html", 3031);
         try {
             String token = memberService.executeDecryptedEncData(tokenVersionId, encData);
-            return new RedirectView("http://localhost:3031/view/outer/niceIdResult.html?status=Y&token=" + token);
+            return new RedirectView( redirectURL+ "?status=Y&token=" + token);
         } catch (Exception e) {
             log.error("error", e);
-            return new RedirectView("http://localhost:3031/view/outer/niceIdResult.html?status=N");
+            return new RedirectView(redirectURL + "?status=N");
         }
+    }
+
+    // 주소 설정
+    private String generateURL(HttpServletRequest request, String apiURL, int serverPort) {
+        String scheme = request.getScheme(); // 클라이언트 요청에 사용된 프로토콜을 가져옴
+        String host = request.getServerName(); // 현재 요청의 서버 호스트 이름을 가져옴
+        apiURL = apiURL.startsWith("/") ? apiURL : "/" + apiURL;
+        return scheme + "://" + host +  ":" + serverPort + apiURL;
     }
 
     /**
