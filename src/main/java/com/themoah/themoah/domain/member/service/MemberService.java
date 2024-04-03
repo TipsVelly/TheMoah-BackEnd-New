@@ -15,7 +15,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 
 import java.util.Optional;
 
@@ -49,7 +48,6 @@ public class MemberService {
 
     @Transactional
     public NiceIdEncData getNiceIdEncData(String clientId, String clientSecret, String productId, String returnURL) {
-        returnURL = StringUtils.hasText(returnURL) ? returnURL : "http://localhost:8024/member/acceptNiceIdResult";
         return NiceIdVerification.getNiceIdEncData(clientId, clientSecret, productId, returnURL, niceIdKeyRepository);
     }
 
