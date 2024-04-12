@@ -200,7 +200,7 @@ public class Menu {
                         menu(menuInfo).
                         submenuId(subCnt++).
                         submenuNm("창고").
-                        submenuKey("storage").
+                        submenuKey("warehouseReg").
                         build()
         );
 
