@@ -1,8 +1,8 @@
 package com.themoah.themoah.common.initData;
 
-import com.themoah.themoah.domain.auth.entity.AuthMapId;
 import com.themoah.themoah.domain.auth.entity.Auth;
 import com.themoah.themoah.domain.auth.entity.AuthMap;
+import com.themoah.themoah.domain.auth.entity.AuthMapId;
 import com.themoah.themoah.domain.auth.entity.SubAuth;
 import com.themoah.themoah.domain.auth.repository.AuthMapRepository;
 import com.themoah.themoah.domain.auth.repository.AuthMgmtRepository;
@@ -10,6 +10,7 @@ import com.themoah.themoah.domain.auth.repository.SubAuthMgmtRepository;
 import com.themoah.themoah.domain.member.entity.Member;
 import com.themoah.themoah.domain.member.repository.MemberRepository;
 import com.themoah.themoah.domain.member.service.MemberService;
+import com.themoah.themoah.domain.menu.service.MenuService;
 import com.themoah.themoah.domain.team.entity.Team;
 import com.themoah.themoah.domain.team.service.TeamService;
 import jakarta.transaction.Transactional;
@@ -44,6 +45,7 @@ public class Dev {
     private final AuthMgmtRepository authMgmtRepository;
     private final SubAuthMgmtRepository subAuthMgmtRepository;
     private final AuthMapRepository authMapRepository;
+    private final MenuService menuService;
 
     @Bean
     @Order(2)
@@ -96,8 +98,7 @@ public class Dev {
 
         //메인 권한 저장
         authMgmtRepository.save(auth);
-        
-        
+
         //서브 메뉴 권한 맵핑
         Map<String, String> map = new HashMap<>();
         map.put("orderMgmt", "발주");
@@ -109,7 +110,7 @@ public class Dev {
         map.put("adjustMgmt", "조정");
         map.put("customerMgmt","거래처");
         map.put("gdsMgmt", "품목");
-        map.put("storage", "창고");
+        map.put("warehouseReg", "창고");
         map.put("teamMgmt", "팀설정");
         map.put("authMgmt", "권한설정");
         map.put("comCodeMgmt", "환경설정");

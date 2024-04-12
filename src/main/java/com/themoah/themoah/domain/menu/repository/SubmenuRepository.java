@@ -10,5 +10,5 @@ import java.util.List;
 public interface SubmenuRepository extends JpaRepository<Submenu, Long> {
 
     // menuId 로 submenu 찾기
-    List<Submenu> findByMenu_MenuIdOrderBySubmenuIdAsc(Long submenuId);
+    List<Submenu> findByMenu_MenuIdOrderBySubmenuIdAsc(Long menuId);
 }
