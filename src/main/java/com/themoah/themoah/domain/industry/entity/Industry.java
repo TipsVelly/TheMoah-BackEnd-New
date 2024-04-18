@@ -1,6 +1,7 @@
 package com.themoah.themoah.domain.industry.entity;
 
 import com.themoah.themoah.domain.customer.entity.Customer;
+import com.themoah.themoah.domain.warehouse.entity.Warehouse;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -11,6 +12,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -32,7 +34,10 @@ public class Industry {
     private String useYn; // 사용여부
 
     @OneToMany(mappedBy = "industry",cascade = CascadeType.ALL)
-    private List<Customer> customerList;
+    @Builder.Default
+    private List<Customer> customerList = new ArrayList<>();
 
-
+    @OneToMany(mappedBy = "industry",cascade = CascadeType.ALL)
+    @Builder.Default
+    private List<Warehouse> warehouseList = new ArrayList<>();
 }

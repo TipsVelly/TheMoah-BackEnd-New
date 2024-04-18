@@ -2,10 +2,9 @@ package com.themoah.themoah.domain.warehouse.entity;
 
 
 import com.themoah.themoah.common.config.base.BaseTimeWithoutId;
+import com.themoah.themoah.domain.industry.entity.Industry;
 import com.themoah.themoah.domain.warehouse.dto.WarehouseDTO;
-import jakarta.persistence.Column;
-import jakarta.persistence.EmbeddedId;
-import jakarta.persistence.Entity;
+import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
@@ -72,6 +71,11 @@ public class Warehouse extends BaseTimeWithoutId {
 
     @Column(name = "UPDATER")
     private String updater;         // 수정자
+
+    @MapsId("industCode")
+    @JoinColumn(name = "indust_code")
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Industry industry;
 
     public WarehouseDTO convertToWarehouseDTO() {
         return WarehouseDTO.builder()
