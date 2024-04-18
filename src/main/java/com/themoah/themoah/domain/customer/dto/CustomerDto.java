@@ -9,6 +9,9 @@ import java.time.LocalDateTime;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+
+@ToString
+
 public class CustomerDto {
     private String custCode;
     private String industCode;
@@ -60,4 +63,17 @@ public class CustomerDto {
     private LocalDateTime uDate; //수정일
     private String uUser; //수정자
     private String salPur; // 매입/매출 구분 표기
+
+
+    public CustomerDto(String custBc, String custKd, String erero, String tel, String empNo, String custName, String salYn, String purYn) {
+        this.custBc = custBc;
+        this.custKd = custKd;
+        this.esero = erero;
+        this.tel = tel;
+        this.empNo = empNo;
+        this.custName = custName;
+        this.salYn = salYn;
+        this.purYn = purYn;
+    }
+
 }

@@ -11,6 +11,8 @@ import java.io.Serializable;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
+@ToString
+
 @Builder
 public class CustomerId implements Serializable {
     @Column(name="indust_code")
