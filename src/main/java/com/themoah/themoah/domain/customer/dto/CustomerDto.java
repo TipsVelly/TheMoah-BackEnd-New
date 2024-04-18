@@ -1,23 +1,17 @@
-package com.themoah.themoah.domain.customer.entity;
+package com.themoah.themoah.domain.customer.dto;
 
-import com.themoah.themoah.domain.industry.entity.Industry;
-import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
-@Entity
-@AllArgsConstructor
-@NoArgsConstructor
 @Getter
+@Setter
 @Builder
-public class Customer {
-
-    @EmbeddedId
-    private CustomerId customerId;
+@NoArgsConstructor
+@AllArgsConstructor
+public class CustomerDto {
+    private String custCode;
+    private String industCode;
     private String custName; //사업장명
     private String prtName; //인쇄용 거래처명
     private String custBc; //거래처구분
@@ -65,11 +59,5 @@ public class Customer {
     private String cUser; //생성자
     private LocalDateTime uDate; //수정일
     private String uUser; //수정자
-
-    @MapsId("industCode")
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "indust_code")
-    private Industry industry;
-
-
+    private String salPur; // 매입/매출 구분 표기
 }
