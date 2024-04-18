@@ -23,6 +23,7 @@ public class TestService {
     private final TestDetailRepository testDetailRepository;
 
 
+
     public void testSave(TestDto testDto) {
         TestEntity test = TestEntity.builder()
                 .industCode(testDto.getIndustCode())
@@ -40,6 +41,7 @@ public class TestService {
     }
 
     public List<TestDto> testList() {
+
         Sort sort = Sort.by(Sort.Direction.DESC, "testId");
         List<TestEntity> all = testRepository.findAll(sort);
 //        List<TestDetailEntity> detaillist = testDetailRepository.findAll();
