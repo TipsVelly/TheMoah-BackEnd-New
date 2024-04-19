@@ -32,6 +32,13 @@ public class CustomerController {
             throw new IllegalArgumentException("거래처가 없음");
         }
         return customerList;
+
+    }
+    @PostMapping("/save")
+    public void saveCustomer(@RequestBody CustomerDto customerDto){
+        log.info("customerDto = {}",customerDto);
+        customerService.saveCustomer(customerDto);
+
     }
     @PostMapping("/save")
     public void saveCustomer(@RequestBody CustomerDto customerDto){

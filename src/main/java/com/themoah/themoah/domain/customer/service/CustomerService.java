@@ -110,8 +110,10 @@ public class CustomerService {
         Customer customer =  Customer.builder()
                 .customerId(custId)
                 .custBc(customerDto.getCustBc())
+
                 .cDate(LocalDateTime.now())
                 .cUser(customerDto.getCUser())
+
                 .custKd(customerDto.getCustKd())
                 .esero(customerDto.getEsero())
                 .tel(customerDto.getTel())
