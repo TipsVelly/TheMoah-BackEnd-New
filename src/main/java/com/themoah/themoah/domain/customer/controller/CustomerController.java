@@ -31,5 +31,15 @@ public class CustomerController {
         customerService.saveCustomer(customerDto);
 
     }
+    @PostMapping("/test")
+    public void test(@RequestBody CustomerDto customerDto){
+        log.info("customerDto = {}",customerDto);
+    }
+    @PostMapping("/update")
+    public void updateCustomer(@RequestBody CustomerDto customerDto){
+        log.info("customerDto = {}",customerDto);
+       customerService.updateCustomer(customerDto);
+    }
+
 
 }

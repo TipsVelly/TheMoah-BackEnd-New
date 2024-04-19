@@ -11,8 +11,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -104,6 +106,8 @@ public class CustomerService {
         Customer customer =  Customer.builder()
                 .customerId(custId)
                 .custBc(customerDto.getCustBc())
+                .cDate(LocalDateTime.now())
+                .cUser(customerDto.getCUser())
                 .custKd(customerDto.getCustKd())
                 .esero(customerDto.getEsero())
                 .tel(customerDto.getTel())
@@ -114,5 +118,22 @@ public class CustomerService {
                 .industry(industry)
                 .build();
         customerRepository.save(customer);
+    }
+
+    public void updateCustomer(CustomerDto customerDto){
+        CustomerId customerId =  CustomerId.builder()
+                .custCode(customerDto.getCustCode())
+                .industCode(customerDto.getIndustCode())
+                .build();
+        Optional<Industry> industryOptional = industryRepository.findById(customerDto.getIndustCode());
+
+        Optional<Customer> optionalCustomer = customerRepository.findById(customerId);
+        if(optionalCustomer.isPresent()&&industryOptional.isPresent()){
+            optionalCustomer.get().updateCustomer(customerDto);
+            optionalCustomer.get().setCustomerIndustry(industryOptional.get());
+            customerRepository.save(optionalCustomer.get());
+        } else {
+            throw new EntityNotFoundException("Customer not found");
+        }
     }
 }
