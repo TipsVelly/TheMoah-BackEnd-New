@@ -1,5 +1,6 @@
 package com.themoah.themoah.domain.customer.entity;
 
+import com.themoah.themoah.domain.customer.dto.CustomerDto;
 import com.themoah.themoah.domain.industry.entity.Industry;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -7,6 +8,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
@@ -22,8 +24,8 @@ public class Customer {
     private String prtName; //인쇄용 거래처명
     private String custBc; //거래처구분
     private String custKd; //거래처형태
-    private LocalDateTime fromDate; //거래개시일
-    private LocalDateTime toDate; //거래종료일
+    private LocalDate fromDate; //거래개시일
+    private LocalDate toDate; //거래종료일
     private String salYn; //거래여부
     private String purYn; //매입여부
     private String deBc; //매출지역구분
@@ -71,5 +73,55 @@ public class Customer {
     @JoinColumn(name = "indust_code")
     private Industry industry;
 
+    public void updateCustomer(CustomerDto customerDto) {
+        this.customerId = CustomerId.builder()
+                .industCode(customerDto.getIndustCode())
+                .custCode(customerDto.getCustCode())
+                .build();
+        this.custName = customerDto.getCustName();
+        this.coNo = customerDto.getCoNo();
+        this.bankBc = customerDto.getBankBc();
+        this.prtName = customerDto.getPrtName();
+        this.custBc = customerDto.getCustBc();
+        this.custKd = customerDto.getCustKd();
+        this.acctNo = customerDto.getAcctNo();
+        this.fromDate = customerDto.getFromDate();
+        this.toDate = customerDto.getToDate();
+        this.salYn = customerDto.getSalYn();
+        this.purYn = customerDto.getPurYn();
+        this.deBc = customerDto.getDeBc();
+        this.dlBc = customerDto.getDlBc();
+        this.taxBc = customerDto.getTaxBc();
+        this.issBc = customerDto.getIssBc();
+        this.salCust = customerDto.getSalCust();
+        this.purCust = customerDto.getPurCust();
+        this.pSetBc = customerDto.getPSetBc();
+        this.dayBc = customerDto.getDayBc();
+        this.payBc = customerDto.getPayBc();
+        this.currency = customerDto.getCurrency();
+        this.currency2 = customerDto.getCurrency2();
+        this.zipCode = customerDto.getZipCode();
+        this.add1 = customerDto.getAdd1();
+        this.add2 = customerDto.getAdd2();
+        this.addPrt = customerDto.getAddPrt();
+        this.tel = customerDto.getTel();
+        this.fax = customerDto.getFax();
+        this.email = customerDto.getEmail();
+        this.homepage = customerDto.getHomepage();
+        this.esero = customerDto.getEsero();
+        this.bizNo = customerDto.getBizNo();
+        this.eTel = customerDto.getETel();
+        this.bizType = customerDto.getBizType();
+        this.bizKind = customerDto.getBizKind();
+        this.ceoName = customerDto.getCeoName();
+        this.items = customerDto.getItems();
+        this.useYn = customerDto.getUseYn();
+        this.uDate =  LocalDateTime.now();
+        this.uUser = customerDto.getUUser();
+    }
+
+    public void setCustomerIndustry(Industry industry) {
+        this.industry = industry;
+    }
 
 }
