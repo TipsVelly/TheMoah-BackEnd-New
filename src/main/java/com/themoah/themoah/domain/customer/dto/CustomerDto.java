@@ -11,7 +11,9 @@ import java.time.LocalDateTime;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+
 @ToString
+
 public class CustomerDto {
     @JsonProperty("custCode")
     private String custCode;
@@ -112,6 +114,7 @@ public class CustomerDto {
     @JsonProperty("salPur")
     private String salPur; // 매입/매출 구분 표기
 
+
     public CustomerDto(String custBc, String custKd, String erero, String tel, String empNo, String custName, String salYn, String purYn) {
         this.custBc = custBc;
         this.custKd = custKd;
@@ -122,4 +125,5 @@ public class CustomerDto {
         this.salYn = salYn;
         this.purYn = purYn;
     }
+
 }

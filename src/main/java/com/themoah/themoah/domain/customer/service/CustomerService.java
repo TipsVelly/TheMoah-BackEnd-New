@@ -2,6 +2,7 @@ package com.themoah.themoah.domain.customer.service;
 
 import com.themoah.themoah.domain.customer.dto.CustomerDto;
 import com.themoah.themoah.domain.customer.entity.Customer;
+
 import com.themoah.themoah.domain.customer.entity.CustomerId;
 import com.themoah.themoah.domain.customer.repository.CustomerRepository;
 import com.themoah.themoah.domain.industry.entity.Industry;
@@ -9,6 +10,7 @@ import com.themoah.themoah.domain.industry.repository.IndustryRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -18,12 +20,14 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
+
 @Slf4j
 public class CustomerService {
 
     private final CustomerRepository customerRepository;
     private final IndustryRepository industryRepository;
     private static int CUSTOMER_SEQ = 1;
+
 
 
     public List<CustomerDto> findAll(String industCode) {
@@ -120,6 +124,7 @@ public class CustomerService {
         customerRepository.save(customer);
     }
 
+
     public void updateCustomer(CustomerDto customerDto){
         CustomerId customerId =  CustomerId.builder()
                 .custCode(customerDto.getCustCode())
@@ -136,4 +141,5 @@ public class CustomerService {
             throw new EntityNotFoundException("Customer not found");
         }
     }
+
 }
