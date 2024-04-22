@@ -1,12 +1,14 @@
 package com.themoah.themoah.domain.warehouse.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.themoah.themoah.domain.industry.entity.Industry;
 import com.themoah.themoah.domain.warehouse.entity.Warehouse;
 import com.themoah.themoah.domain.warehouse.entity.WarehouseId;
 import lombok.*;
 import org.springframework.util.StringUtils;
 
 import java.io.Serializable;
+import java.util.List;
 
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
@@ -15,64 +17,64 @@ import java.io.Serializable;
 @Builder
 public class WarehouseDTO implements Serializable {
 
-    @JsonProperty("WH_CODE")
+    @JsonProperty("wh_code")
     private String warehouseCode;   //  창고코드
 
-    @JsonProperty("INDUST_CODE")
+    @JsonProperty("indust_code")
     private String industCode;      //  사업장코드
 
-    @JsonProperty("WH_NAME")
+    @JsonProperty("wh_name")
     private String warehouseName;   // 창고명
 
-    @JsonProperty("MAT_YN")
+    @JsonProperty("mat_yn")
     private String matYn;           // 자재창고여부
 
-    @JsonProperty("PART_YN")
+    @JsonProperty("part_yn")
     private String partYn;          // 구매입고창고여부
 
-    @JsonProperty("PROD_YN")
+    @JsonProperty("prod_yn")
     private String prodYn;          // 제품창고여부
 
-    @JsonProperty("VMI_YN")
+    @JsonProperty("vmi_yn")
     private String vmiYn;           // 가상창고여부
 
-    @JsonProperty("RTN_YN")
+    @JsonProperty("rtn_yn")
     private String rtnYn;           // 출하창고여부
 
-    @JsonProperty("SALE_YN")
+    @JsonProperty("sale_yn")
     private String saleYn;          // 매출창고여부
 
-    @JsonProperty("SUB_YN")
+    @JsonProperty("sub_yn")
     private String subYn;           // 외주창고여부
 
-    @JsonProperty("BAD_YN")
+    @JsonProperty("bad_yn")
     private String badYn;           // 불량창고여부
 
-    @JsonProperty("INSP_YN")
-    private String IsnpYn;          // 검사대기여부
+    @JsonProperty("insp_yn")
+    private String inspYn;          // 검사대기여부
 
-    @JsonProperty("MINUS_YN")
+    @JsonProperty("minus_yn")
     private String minusYn;         // (-)재고허용
 
-    @JsonProperty("USE_YN")
+    @JsonProperty("use_yn")
     private String useYn;           // 사용여부
 
-    @JsonProperty("CUST_ID")
-    private String custId;          // 거래처코드
+    @JsonProperty("cust_code")
+    private String custCode;          // 거래처코드
 
-    @JsonProperty("DEPT_ID")
-    private String deptId;          // 관리부서코드
+    @JsonProperty("team_code")
+    private String teamCode;          // 관리부서코드
 
-    @JsonProperty("DISP_SEQ")
+    @JsonProperty("disp_seq")
     private Long dispSeq;        // 조회순서
 
-    @JsonProperty("CREATER")
+    @JsonProperty("creater")
     private String creater;         // 생성자
 
-    @JsonProperty("UPDATER")
+    @JsonProperty("updater")
     private String updater;         // 수정자
 
-    @JsonProperty("COMMENT")
+    @JsonProperty("comment")
     private String comment;         // 비고
 
 
@@ -91,11 +93,11 @@ public class WarehouseDTO implements Serializable {
                 .saleYn(convertToYn(saleYn))
                 .subYn(convertToYn(subYn))
                 .badYn(convertToYn(badYn))
-                .IsnpYn(convertToYn(IsnpYn))
+                .inspYn(convertToYn(inspYn))
                 .minusYn(convertToYn(minusYn))
                 .useYn(convertToYn(useYn))
-                .custId(custId)
-                .deptId(deptId)
+                .custCode(custCode)
+                .teamCode(teamCode)
                 .dispSeq(dispSeq)
                 .creater(creater)
                 .updater(updater)
@@ -106,7 +108,7 @@ public class WarehouseDTO implements Serializable {
     public Warehouse convertToWarehouse(Long count) {
         return Warehouse.builder()
                 .warehouseId(WarehouseId.builder()
-                        .warehouseCode(warehouseCode)
+                        .warehouseCode(StringUtils.hasText(warehouseCode) ? warehouseCode : "default_wh_0" + (++count))
                         .industCode(industCode)
                         .build())
                 .warehouseName(warehouseName)
@@ -118,19 +120,23 @@ public class WarehouseDTO implements Serializable {
                 .saleYn(convertToYn(saleYn))
                 .subYn(convertToYn(subYn))
                 .badYn(convertToYn(badYn))
-                .IsnpYn(convertToYn(IsnpYn))
+                .inspYn(convertToYn(inspYn))
                 .minusYn(convertToYn(minusYn))
                 .useYn(convertToYn(useYn))
-                .custId(custId)
-                .deptId(deptId)
-                .dispSeq(count)
+                .custCode(StringUtils.hasText(custCode) ? custCode : null)
+                .teamCode(StringUtils.hasText(teamCode) ? teamCode : null)
+                .dispSeq(++count)
                 .creater(creater)
                 .updater(updater)
                 .comment(comment)
+                .industry(Industry.builder()
+                        .industCode(industCode)
+                        .build())
                 .build();
     }
 
     private String convertToYn(String yn) {
-        return StringUtils.hasText(yn) && "Y".equals(yn) ? "Y" : "N";
+        List<String> convertYnList = List.of("Y", "True", "true");
+        return StringUtils.hasText(yn) &&  convertYnList.contains(yn) ? "Y" : "N";
     }
 }

@@ -15,9 +15,9 @@ import java.io.Serializable;
 @Builder
 public class WarehouseId implements Serializable {
 
-    @Column(name = "WH_CODE")
+    @Column(name = "wh_code")
     private String warehouseCode;   //  창고코드
 
-    @Column(name = "INDUST_CODE")
+    @Column(name = "indust_code")
     private String industCode;      //  사업장코드
 }
