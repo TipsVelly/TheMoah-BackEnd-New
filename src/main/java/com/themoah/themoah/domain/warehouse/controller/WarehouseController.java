@@ -1,5 +1,6 @@
 package com.themoah.themoah.domain.warehouse.controller;
 
+import com.themoah.themoah.common.constant.init.InitData;
 import com.themoah.themoah.domain.warehouse.dto.WarehouseDTO;
 import com.themoah.themoah.domain.warehouse.entity.Warehouse;
 import com.themoah.themoah.domain.warehouse.entity.WarehouseId;
@@ -18,7 +19,6 @@ import java.util.stream.Collectors;
 public class WarehouseController {
     private final WarehouseRepository warehouseRepository;
 
-
     @GetMapping("/read")
     public List<WarehouseDTO> getWarehouseInfo() {
         return warehouseRepository.findAll().stream()
@@ -28,7 +28,7 @@ public class WarehouseController {
 
     @PostMapping("/save")
     public WarehouseDTO saveWarehouseInfo(@RequestBody WarehouseDTO reqWarehouseDTO) {
-        reqWarehouseDTO.setIndustCode(StringUtils.hasText(reqWarehouseDTO.getIndustCode()) ? reqWarehouseDTO.getIndustCode() : "default");
+        reqWarehouseDTO.setIndustCode(StringUtils.hasText(reqWarehouseDTO.getIndustCode()) ? reqWarehouseDTO.getIndustCode() : InitData.INDUST_CODE.getValue());
         long count = warehouseRepository.count();
         Warehouse savedWarehouse = warehouseRepository.save(reqWarehouseDTO.convertToWarehouse(count));
         return savedWarehouse.convertToWarehouseDTO();

@@ -147,6 +147,7 @@ public class Dev {
         return auth;
     }
 
+    private void initIndustry() {
 
-
+    }
 }

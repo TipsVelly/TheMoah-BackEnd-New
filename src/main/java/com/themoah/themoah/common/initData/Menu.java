@@ -175,10 +175,20 @@ public class Menu {
                 Submenu.builder().
                         menu(menuInfo).
                         submenuId(subCnt++).
+                        submenuNm("사업장관리").
+                        submenuKey("industryMgmt").
+                        build()
+        );
+
+        submenuInfo.add(
+                Submenu.builder().
+                        menu(menuInfo).
+                        submenuId(subCnt++).
                         submenuNm("거래처").
                         submenuKey("customerMgmt").
                         build()
         );
+
         submenuInfo.add(
                 Submenu.builder().
                         menu(menuInfo).
